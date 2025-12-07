@@ -43,7 +43,9 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
     private func deleteWebhook(app: Application, dropPendingUpdates: Bool) async {
         do {
             let response = try await buildClient().deleteWebhook(
-                body: .json(.init(drop_pending_updates: dropPendingUpdates))
+                body: .json(.init(
+                    drop_pending_updates: dropPendingUpdates
+                ))
             )
             if response.extract(logger: app.logger).isSuccess {
                 app.logger.info("Telegram webhook deleted")
@@ -56,7 +58,11 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
     private func setWebhook(app: Application, url: String) async {
         do {
             let response = try await buildClient().setWebhook(
-                body: .json(.init(url: url, drop_pending_updates: config.deleteWebhookOnStart, secret_token: config.webhookSecretToken))
+                body: .json(.init(
+                    url: url,
+                    drop_pending_updates: config.deleteWebhookOnStart,
+                    secret_token: config.webhookSecretToken
+                ))
             )
             if response.extract(logger: app.logger).isSuccess {
                 app.logger.info("Telegram webhook configured", metadata: ["url": "\(url)"])

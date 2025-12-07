@@ -5,7 +5,7 @@ enum TelegramResult<T: Sendable>: Sendable {
     case failure(TelegramError)
 
     @inlinable var value: T? {
-        if case .success(let v) = self { v } else { nil }
+        if case .success(let value) = self { value } else { nil }
     }
 
     @inlinable var isSuccess: Bool {
@@ -14,31 +14,38 @@ enum TelegramResult<T: Sendable>: Sendable {
 
     @inlinable func get() throws -> T {
         switch self {
-        case .success(let v): v
-        case .failure(let e): throw e
+        case .success(let value):
+            return value
+        case .failure(let error):
+            throw error
         }
     }
 
     @inlinable func map<U: Sendable>(_ transform: (T) -> U) -> TelegramResult<U> {
         switch self {
-        case .success(let v): .success(transform(v))
-        case .failure(let e): .failure(e)
+        case .success(let value):
+            return .success(transform(value))
+        case .failure(let error):
+            return .failure(error)
         }
     }
 
     @inlinable func flatMap<U: Sendable>(_ transform: (T) -> TelegramResult<U>) -> TelegramResult<U> {
         switch self {
-        case .success(let v): transform(v)
-        case .failure(let e): .failure(e)
+        case .success(let value):
+            return transform(value)
+        case .failure(let error):
+            return .failure(error)
         }
     }
 
+    @discardableResult
     func logged(_ logger: Logger, operation: String, default defaultValue: T) -> T {
         switch self {
-        case .success(let v):
-            return v
-        case .failure(let e):
-            logger.error("\(operation): \(e.localizedDescription)")
+        case .success(let value):
+            return value
+        case .failure(let error):
+            logger.error("\(operation): \(error.localizedDescription)")
             return defaultValue
         }
     }
@@ -49,17 +56,21 @@ enum TelegramResult<T: Sendable>: Sendable {
 extension Operations.getUpdates.Output {
     func extract(logger: Logger) -> TelegramResult<[Components.Schemas.Update]> {
         switch self {
-        case .ok(let ok):
-            switch ok.body {
+        case .ok(let okResponse):
+            switch okResponse.body {
             case .json(let json):
-                json.ok ? .success(json.result) : .failure(.apiError(statusCode: 200, description: "ok=false"))
+                if json.ok {
+                    return .success(json.result)
+                }
+                logger.error("Telegram getUpdates returned ok=false")
+                return .failure(.apiError(statusCode: 200, description: "ok=false"))
             }
         case .badRequest:
-            .failure(.apiError(statusCode: 400, description: "Bad request"))
+            return .failure(.apiError(statusCode: 400, description: "Bad request"))
         case .unauthorized:
-            .failure(.authenticationFailed)
+            return .failure(.authenticationFailed)
         case .undocumented(let code, _):
-            .failure(.apiError(statusCode: code, description: nil))
+            return .failure(.apiError(statusCode: code, description: nil))
         }
     }
 }
@@ -67,17 +78,21 @@ extension Operations.getUpdates.Output {
 extension Operations.deleteWebhook.Output {
     func extract(logger: Logger) -> TelegramResult<Bool> {
         switch self {
-        case .ok(let ok):
-            switch ok.body {
+        case .ok(let okResponse):
+            switch okResponse.body {
             case .json(let json):
-                json.ok ? .success(true) : .failure(.apiError(statusCode: 200, description: "ok=false"))
+                if json.ok {
+                    return .success(true)
+                }
+                logger.error("Telegram deleteWebhook returned ok=false")
+                return .failure(.apiError(statusCode: 200, description: "ok=false"))
             }
         case .badRequest:
-            .failure(.apiError(statusCode: 400, description: "Bad request"))
+            return .failure(.apiError(statusCode: 400, description: "Bad request"))
         case .unauthorized:
-            .failure(.authenticationFailed)
+            return .failure(.authenticationFailed)
         case .undocumented(let code, _):
-            .failure(.apiError(statusCode: code, description: nil))
+            return .failure(.apiError(statusCode: code, description: nil))
         }
     }
 }
@@ -85,17 +100,21 @@ extension Operations.deleteWebhook.Output {
 extension Operations.setWebhook.Output {
     func extract(logger: Logger) -> TelegramResult<Bool> {
         switch self {
-        case .ok(let ok):
-            switch ok.body {
+        case .ok(let okResponse):
+            switch okResponse.body {
             case .json(let json):
-                json.ok ? .success(true) : .failure(.apiError(statusCode: 200, description: "ok=false"))
+                if json.ok {
+                    return .success(true)
+                }
+                logger.error("Telegram setWebhook returned ok=false")
+                return .failure(.apiError(statusCode: 200, description: "ok=false"))
             }
         case .badRequest:
-            .failure(.apiError(statusCode: 400, description: "Bad request"))
+            return .failure(.apiError(statusCode: 400, description: "Bad request"))
         case .unauthorized:
-            .failure(.authenticationFailed)
+            return .failure(.authenticationFailed)
         case .undocumented(let code, _):
-            .failure(.apiError(statusCode: code, description: nil))
+            return .failure(.apiError(statusCode: code, description: nil))
         }
     }
 }

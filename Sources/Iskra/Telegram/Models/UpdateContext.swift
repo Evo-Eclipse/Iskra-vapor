@@ -14,10 +14,4 @@ struct UpdateContext: Sendable {
 
     /// Bot token for making API calls.
     let botToken: String
-
-    init(updateId: Int64, logger: Logger, botToken: String) {
-        self.updateId = updateId
-        self.logger = logger
-        self.botToken = botToken
-    }
 }
