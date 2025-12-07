@@ -1,7 +1,13 @@
+import NIOSSL
+import Fluent
+import FluentPostgresDriver
 import Vapor
 
 // configures your application
 public func configure(_ app: Application) async throws {
+    // Configure database
+    try configureDatabase(app)
+
     // Load Telegram configuration
     let telegramConfig = try TelegramConfiguration.fromEnvironment()
     app.storage[TelegramConfigurationKey.self] = telegramConfig
@@ -76,4 +82,31 @@ private func configurePolling(
 
     // Register lifecycle handler to start/stop polling
     app.lifecycle.use(TelegramPollingLifecycle(pollingService: pollingService))
+}
+
+// MARK: - Database Configuration
+
+private func configureDatabase(_ app: Application) throws {
+    try app.databases.use(
+        DatabaseConfigurationFactory.postgres(
+            configuration: .init(
+                hostname: Environment.get("DATABASE_HOST") ?? "localhost",
+                port: Environment.get("DATABASE_PORT").flatMap(Int.init) ?? SQLPostgresConfiguration.ianaPortNumber,
+                username: Environment.get("DATABASE_USERNAME") ?? "vapor_username",
+                password: Environment.get("DATABASE_PASSWORD") ?? "vapor_password",
+                database: Environment.get("DATABASE_NAME") ?? "vapor_database",
+                tls: .prefer(.init(configuration: .clientDefault))
+            )
+        ),
+        as: .psql
+    )
+
+    // Register migrations in dependency order
+    app.migrations.add(CreateEnumTypes())
+    app.migrations.add(CreateUsers())
+    app.migrations.add(CreateProfiles())
+    app.migrations.add(CreateFilters())
+    app.migrations.add(CreateModerations())
+    app.migrations.add(CreateInteractions())
+    app.migrations.add(CreateMatches())
 }
