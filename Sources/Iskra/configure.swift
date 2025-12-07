@@ -34,6 +34,7 @@ private func buildUpdateRouter() -> UpdateRouter {
         .onCommand("help", handler: HelpCommandHandler())
         .onCallback(prefix: "action", handler: ActionCallbackHandler())
         .onText(EchoTextHandler())
+        .onSticker(EchoStickerHandler())
         .build()
 }
 

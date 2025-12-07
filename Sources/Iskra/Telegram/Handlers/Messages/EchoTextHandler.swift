@@ -1,6 +1,4 @@
-/// Example text handler that logs received text messages.
-///
-/// Replace with your actual text processing logic.
+/// Text handler that echoes received messages back to the user.
 struct EchoTextHandler: TextMessageHandler {
     func handle(_ message: Components.Schemas.Message, context: UpdateContext) async {
         guard let text = message.text else { return }
@@ -10,10 +8,20 @@ struct EchoTextHandler: TextMessageHandler {
             metadata: [
                 "chat_id": "\(message.chat.id)",
                 "user_id": "\(message.from?.id ?? 0)",
+                "username": "\(message.from?.username ?? "")",
                 "text_preview": "\(String(text.prefix(100)))"
             ]
         )
 
-        // TODO: Process text or echo it back
+        // Echo message back
+        let client = TelegramClientFactory.makeClient(botToken: context.botToken)
+        do {
+            _ = try await client.sendMessage(body: .json(.init(
+                chat_id: .case1(message.chat.id),
+                text: text
+            )))
+        } catch {
+            context.logger.error("Failed to echo message: \(error)")
+        }
     }
 }
