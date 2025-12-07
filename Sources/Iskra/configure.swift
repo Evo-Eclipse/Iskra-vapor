@@ -7,32 +7,45 @@ public func configure(_ app: Application) async throws {
     app.storage[TelegramConfigurationKey.self] = telegramConfig
 
     app.logger.info("Telegram bot mode: \(telegramConfig.mode)")
-    app.logger.info("Webhook URL: \(telegramConfig.webhookURL ?? "not configured")")
 
-    // Configure webhook
-    guard telegramConfig.mode == .webhook else {
-        app.logger.info("Polling mode not yet implemented")
-        try routes(app)
-        return
+    // Build the update router (shared between webhook and polling)
+    let router = buildUpdateRouter()
+
+    // Configure based on mode
+    switch telegramConfig.mode {
+    case .webhook:
+        app.logger.info("Webhook URL: \(telegramConfig.webhookURL ?? "not configured")")
+        try configureWebhook(app: app, config: telegramConfig, router: router)
+    case .polling:
+        configurePolling(app: app, config: telegramConfig, router: router)
     }
-
-    try configureWebhook(app: app, config: telegramConfig)
 
     // Register routes
     try routes(app)
 }
 
-private func configureWebhook(app: Application, config: TelegramConfiguration) throws {
-    // Register authentication middleware (validates X-Telegram-Bot-Api-Secret-Token)
-    app.middleware.use(BotAuthenticationMiddleware(expectedToken: config.webhookSecretToken))
+// MARK: - Router Configuration
 
-    // Build update router with O(1) command and callback dispatch
-    let router = UpdateRouterBuilder()
+/// Builds the update router with all command and callback handlers.
+/// This router is shared between webhook and polling modes.
+private func buildUpdateRouter() -> UpdateRouter {
+    UpdateRouterBuilder()
         .onCommand("start", handler: StartCommandHandler())
         .onCommand("help", handler: HelpCommandHandler())
         .onCallback(prefix: "action", handler: ActionCallbackHandler())
         .onText(EchoTextHandler())
         .build()
+}
+
+// MARK: - Webhook Configuration
+
+private func configureWebhook(
+    app: Application,
+    config: TelegramConfiguration,
+    router: UpdateRouter
+) throws {
+    // Register authentication middleware (validates X-Telegram-Bot-Api-Secret-Token)
+    app.middleware.use(BotAuthenticationMiddleware(expectedToken: config.webhookSecretToken))
 
     // Register webhook controller
     let webhookController = TelegramWebhookController(
@@ -43,4 +56,23 @@ private func configureWebhook(app: Application, config: TelegramConfiguration) t
 
     // Schedule webhook setup after server starts
     app.lifecycle.use(TelegramWebhookLifecycle(config: config))
+}
+
+// MARK: - Polling Configuration
+
+private func configurePolling(
+    app: Application,
+    config: TelegramConfiguration,
+    router: UpdateRouter
+) {
+    let pollingService = TelegramPollingService(
+        config: config,
+        router: router,
+        logger: app.logger,
+        timeout: config.pollingTimeout,
+        limit: config.pollingLimit
+    )
+
+    // Register lifecycle handler to start/stop polling
+    app.lifecycle.use(TelegramPollingLifecycle(pollingService: pollingService))
 }

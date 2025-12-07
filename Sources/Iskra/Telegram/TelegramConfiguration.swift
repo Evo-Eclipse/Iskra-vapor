@@ -28,6 +28,14 @@ struct TelegramConfiguration: Sendable {
     /// Whether to delete the existing webhook on startup before setting a new one.
     let deleteWebhookOnStart: Bool
 
+    // MARK: - Polling Configuration
+
+    /// Long polling timeout in seconds (0-50). Default: 30.
+    let pollingTimeout: Int64
+
+    /// Maximum number of updates to retrieve per request (1-100). Default: 100.
+    let pollingLimit: Int64
+
     /// Creates configuration from environment variables.
     /// - Throws: If required environment variables are missing.
     static func fromEnvironment() throws -> TelegramConfiguration {
@@ -44,12 +52,20 @@ struct TelegramConfiguration: Sendable {
         let deleteOnStart = Environment.get("TELEGRAM_DELETE_WEBHOOK_ON_START")
             .map { $0.lowercased() == "true" || $0 == "1" } ?? true
 
+        let pollingTimeout = Environment.get("TELEGRAM_POLLING_TIMEOUT")
+            .flatMap(Int64.init) ?? 30
+
+        let pollingLimit = Environment.get("TELEGRAM_POLLING_LIMIT")
+            .flatMap(Int64.init) ?? 100
+
         return TelegramConfiguration(
             botToken: botToken,
             mode: mode,
             webhookSecretToken: Environment.get("TELEGRAM_WEBHOOK_SECRET"),
             webhookURL: webhookURL,
-            deleteWebhookOnStart: deleteOnStart
+            deleteWebhookOnStart: deleteOnStart,
+            pollingTimeout: pollingTimeout,
+            pollingLimit: pollingLimit
         )
     }
 
