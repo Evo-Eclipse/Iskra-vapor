@@ -1,6 +1,4 @@
-import Foundation
 import Vapor
-import OpenAPIAsyncHTTPClient
 
 /// Manages Telegram webhook lifecycle: deletes old webhook on startup, sets new one.
 struct TelegramWebhookLifecycle: LifecycleHandler {
@@ -28,23 +26,23 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
 
         // Delete existing webhook if configured
         if config.deleteWebhookOnStart {
-            logger.info("Deleting existing webhook before setup...")
+            logger.info("Webhook: deleting existing")
             await deleteWebhook(app: app, dropPendingUpdates: true)
         }
 
         // Set new webhook if URL is configured
         guard let webhookURL = config.webhookURL else {
-            logger.warning("Webhook mode enabled but TELEGRAM_WEBHOOK_URL not set")
+            logger.warning("Webhook: URL not configured")
             return
         }
 
-        logger.info("Setting webhook to: \(webhookURL)")
+        logger.info("Webhook: setting", metadata: ["url": "\(webhookURL)"])
         await setWebhook(app: app, url: webhookURL)
     }
 
     private func deleteWebhook(app: Application, dropPendingUpdates: Bool) async {
         do {
-            let client = buildClient(app: app)
+            let client = buildClient()
             let response = try await client.deleteWebhook(
                 body: .json(.init(drop_pending_updates: dropPendingUpdates))
             )
@@ -54,9 +52,9 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
                 switch ok.body {
                 case .json(let json):
                     if json.ok {
-                        app.logger.info("Webhook deleted successfully")
+                        app.logger.info("Webhook: deleted")
                     } else {
-                        app.logger.warning("Delete webhook returned ok=false")
+                        app.logger.warning("Webhook: delete returned ok=false")
                     }
                 }
             case .badRequest(let error):
@@ -73,7 +71,7 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
 
     private func setWebhook(app: Application, url: String) async {
         do {
-            let client = buildClient(app: app)
+            let client = buildClient()
             let response = try await client.setWebhook(
                 body: .json(.init(
                     url: url,
@@ -87,9 +85,9 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
                 switch ok.body {
                 case .json(let json):
                     if json.ok {
-                        app.logger.info("Webhook set successfully to: \(url)")
+                        app.logger.info("Webhook: configured", metadata: ["url": "\(url)"])
                     } else {
-                        app.logger.warning("Set webhook returned ok=false")
+                        app.logger.warning("Webhook: set returned ok=false")
                     }
                 }
             case .badRequest(let error):
@@ -104,14 +102,7 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
         }
     }
 
-    private func buildClient(app: Application) -> Client {
-        // Telegram API requires: https://api.telegram.org/bot{token}/method
-        guard let serverURL = URL(string: "https://api.telegram.org/bot\(config.botToken)") else {
-            fatalError("Invalid Telegram bot token, unable to build API URL")
-        }
-        return Client(
-            serverURL: serverURL,
-            transport: AsyncHTTPClientTransport()
-        )
+    private func buildClient() -> Client {
+        TelegramClientFactory.makeClient(botToken: config.botToken)
     }
 }

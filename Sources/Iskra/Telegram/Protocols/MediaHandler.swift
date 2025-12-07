@@ -20,6 +20,4 @@ enum MediaType: String, Sendable {
     case audio
     case voice
     case sticker
-    case animation
-    case videoNote = "video_note"
 }

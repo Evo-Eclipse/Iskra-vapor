@@ -1,5 +1,4 @@
 import Vapor
-import OpenAPIAsyncHTTPClient
 
 /// Long polling service for receiving Telegram updates.
 ///
@@ -32,10 +31,7 @@ struct TelegramPollingService: Sendable {
 
     /// Starts the polling loop and returns a handle to cancel it.
     func start() -> Task<Void, Never> {
-        logger.info("Starting Telegram long polling", metadata: [
-            "timeout": "\(timeout)s",
-            "limit": "\(limit)"
-        ])
+        logger.info("Polling: start", metadata: ["timeout": "\(timeout)s", "limit": "\(limit)"])
 
         return Task {
             await pollingLoop()
@@ -80,7 +76,7 @@ struct TelegramPollingService: Sendable {
             }
         }
 
-        logger.info("Polling loop stopped")
+        logger.info("Polling: stopped")
     }
 
     // MARK: - API Calls
@@ -121,7 +117,7 @@ struct TelegramPollingService: Sendable {
     }
 
     private func deleteWebhookIfNeeded(client: Client) async {
-        logger.info("Deleting webhook to enable polling mode...")
+        logger.info("Polling: deleting webhook")
 
         do {
             let response = try await client.deleteWebhook(
@@ -133,26 +129,18 @@ struct TelegramPollingService: Sendable {
                 switch ok.body {
                 case .json(let json):
                     if json.ok {
-                        logger.info("Webhook deleted, polling mode active")
+                        logger.info("Polling: webhook deleted")
                     }
                 }
             case .badRequest, .unauthorized, .undocumented:
-                logger.warning("Failed to delete webhook, polling may not work")
+                logger.warning("Polling: webhook delete failed")
             }
         } catch {
             logger.error("Error deleting webhook: \(error)")
         }
     }
 
-    // MARK: - Client Factory
-
     private func buildClient() -> Client {
-        guard let serverURL = URL(string: "https://api.telegram.org/bot\(config.botToken)") else {
-            fatalError("Invalid Telegram bot token, unable to build API URL")
-        }
-        return Client(
-            serverURL: serverURL,
-            transport: AsyncHTTPClientTransport()
-        )
+        TelegramClientFactory.makeClient(botToken: config.botToken)
     }
 }

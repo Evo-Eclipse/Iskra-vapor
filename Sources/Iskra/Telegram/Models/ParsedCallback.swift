@@ -16,4 +16,17 @@ struct ParsedCallback: Sendable, Equatable {
     /// Everything after the prefix, or nil if no payload.
     /// Example: "settings:audio" for "menu:settings:audio"
     let payload: String?
+
+    /// Parses callback data into prefix and payload. O(n) where n = prefix length.
+    static func parse(id: String, data: String) -> ParsedCallback {
+        guard let colonIndex = data.firstIndex(of: ":") else {
+            return ParsedCallback(id: id, data: data, prefix: data, payload: nil)
+        }
+
+        let prefix = String(data[..<colonIndex])
+        let payloadStart = data.index(after: colonIndex)
+        let payload = payloadStart < data.endIndex ? String(data[payloadStart...]) : nil
+
+        return ParsedCallback(id: id, data: data, prefix: prefix, payload: payload)
+    }
 }
