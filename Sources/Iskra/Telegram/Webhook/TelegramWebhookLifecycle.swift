@@ -106,7 +106,9 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
 
     private func buildClient(app: Application) -> Client {
         // Telegram API requires: https://api.telegram.org/bot{token}/method
-        let serverURL = URL(string: "https://api.telegram.org/bot\(config.botToken)")!
+        guard let serverURL = URL(string: "https://api.telegram.org/bot\(config.botToken)") else {
+            fatalError("Invalid Telegram bot token, unable to build API URL")
+        }
         return Client(
             serverURL: serverURL,
             transport: AsyncHTTPClientTransport()
