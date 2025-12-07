@@ -1,0 +1,46 @@
+import Fluent
+import Foundation
+
+/// User's search filter settings.
+/// 1-to-1 relationship with User.
+final class Filter: Model, @unchecked Sendable {
+    static let schema = "filters"
+
+    /// Uses user_id as primary key (1-to-1 relationship)
+    @ID(custom: .userId, generatedBy: .user)
+    var id: UUID?
+
+    @Parent(key: .userId)
+    var user: User
+
+    @Field(key: .targetGenders)
+    var targetGenders: [Gender]
+
+    @Field(key: .ageMin)
+    var ageMin: Int16
+
+    @Field(key: .ageMax)
+    var ageMax: Int16
+
+    @Field(key: .lookingFor)
+    var lookingFor: [LookingFor]
+
+    // MARK: - Initialization
+
+    init() {}
+
+    init(
+        userId: UUID,
+        targetGenders: [Gender],
+        ageMin: Int16,
+        ageMax: Int16,
+        lookingFor: [LookingFor],
+    ) {
+        id = userId
+        $user.id = userId
+        self.targetGenders = targetGenders
+        self.ageMin = ageMin
+        self.ageMax = ageMax
+        self.lookingFor = lookingFor
+    }
+}
