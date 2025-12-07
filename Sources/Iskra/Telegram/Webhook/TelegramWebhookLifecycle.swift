@@ -42,63 +42,27 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
 
     private func deleteWebhook(app: Application, dropPendingUpdates: Bool) async {
         do {
-            let client = buildClient()
-            let response = try await client.deleteWebhook(
+            let response = try await buildClient().deleteWebhook(
                 body: .json(.init(drop_pending_updates: dropPendingUpdates))
             )
-
-            switch response {
-            case .ok(let ok):
-                switch ok.body {
-                case .json(let json):
-                    if json.ok {
-                        app.logger.info("Webhook: deleted")
-                    } else {
-                        app.logger.warning("Webhook: delete returned ok=false")
-                    }
-                }
-            case .badRequest(let error):
-                app.logger.error("Delete webhook failed (400): \(error)")
-            case .unauthorized(let error):
-                app.logger.error("Delete webhook failed (401): \(error)")
-            case .undocumented(let statusCode, _):
-                app.logger.error("Delete webhook failed with status: \(statusCode)")
+            if response.extract(logger: app.logger).isSuccess {
+                app.logger.info("Webhook: deleted")
             }
         } catch {
-            app.logger.error("Failed to delete webhook: \(error)")
+            app.logger.error("Webhook: delete failed", metadata: ["error": "\(error)"])
         }
     }
 
     private func setWebhook(app: Application, url: String) async {
         do {
-            let client = buildClient()
-            let response = try await client.setWebhook(
-                body: .json(.init(
-                    url: url,
-                    drop_pending_updates: config.deleteWebhookOnStart,
-                    secret_token: config.webhookSecretToken
-                ))
+            let response = try await buildClient().setWebhook(
+                body: .json(.init(url: url, drop_pending_updates: config.deleteWebhookOnStart, secret_token: config.webhookSecretToken))
             )
-
-            switch response {
-            case .ok(let ok):
-                switch ok.body {
-                case .json(let json):
-                    if json.ok {
-                        app.logger.info("Webhook: configured", metadata: ["url": "\(url)"])
-                    } else {
-                        app.logger.warning("Webhook: set returned ok=false")
-                    }
-                }
-            case .badRequest(let error):
-                app.logger.error("Set webhook failed (400): \(error)")
-            case .unauthorized(let error):
-                app.logger.error("Set webhook failed (401): \(error)")
-            case .undocumented(let statusCode, _):
-                app.logger.error("Set webhook failed with status: \(statusCode)")
+            if response.extract(logger: app.logger).isSuccess {
+                app.logger.info("Webhook: configured", metadata: ["url": "\(url)"])
             }
         } catch {
-            app.logger.error("Failed to set webhook: \(error)")
+            app.logger.error("Webhook: set failed", metadata: ["error": "\(error)"])
         }
     }
 

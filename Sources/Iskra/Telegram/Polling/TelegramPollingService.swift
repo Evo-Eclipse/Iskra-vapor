@@ -81,62 +81,22 @@ struct TelegramPollingService: Sendable {
 
     // MARK: - API Calls
 
-    private func fetchUpdates(
-        client: Client,
-        offset: Int64
-    ) async throws -> [Components.Schemas.Update] {
+    private func fetchUpdates(client: Client, offset: Int64) async throws -> [Components.Schemas.Update] {
         let response = try await client.getUpdates(
-            body: .json(.init(
-                offset: offset > 0 ? offset : nil,
-                limit: limit,
-                timeout: timeout
-            ))
+            body: .json(.init(offset: offset > 0 ? offset : nil, limit: limit, timeout: timeout))
         )
-
-        switch response {
-        case .ok(let ok):
-            switch ok.body {
-            case .json(let json):
-                if json.ok {
-                    return json.result
-                } else {
-                    logger.warning("getUpdates returned ok=false")
-                    return []
-                }
-            }
-        case .badRequest(let error):
-            logger.error("getUpdates failed (400): \(error)")
-            return []
-        case .unauthorized(let error):
-            logger.error("getUpdates failed (401): \(error)")
-            throw TelegramError.authenticationFailed
-        case .undocumented(let statusCode, _):
-            logger.error("getUpdates failed with status: \(statusCode)")
-            return []
-        }
+        return try response.extract(logger: logger).get()
     }
 
     private func deleteWebhookIfNeeded(client: Client) async {
         logger.info("Polling: deleting webhook")
-
         do {
-            let response = try await client.deleteWebhook(
-                body: .json(.init(drop_pending_updates: false))
-            )
-
-            switch response {
-            case .ok(let ok):
-                switch ok.body {
-                case .json(let json):
-                    if json.ok {
-                        logger.info("Polling: webhook deleted")
-                    }
-                }
-            case .badRequest, .unauthorized, .undocumented:
-                logger.warning("Polling: webhook delete failed")
+            let response = try await client.deleteWebhook(body: .json(.init(drop_pending_updates: false)))
+            if response.extract(logger: logger).isSuccess {
+                logger.info("Polling: webhook deleted")
             }
         } catch {
-            logger.error("Error deleting webhook: \(error)")
+            logger.error("Polling: webhook delete failed", metadata: ["error": "\(error)"])
         }
     }
 
