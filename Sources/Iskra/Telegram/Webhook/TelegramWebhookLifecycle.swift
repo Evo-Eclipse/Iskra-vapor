@@ -26,17 +26,17 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
 
         // Delete existing webhook if configured
         if config.deleteWebhookOnStart {
-            logger.info("Webhook: deleting existing")
+            logger.info("Requesting Telegram webhook deletion before setup")
             await deleteWebhook(app: app, dropPendingUpdates: true)
         }
 
         // Set new webhook if URL is configured
         guard let webhookURL = config.webhookURL else {
-            logger.warning("Webhook: URL not configured")
+            logger.warning("Skipping webhook setup: webhook URL is not configured")
             return
         }
 
-        logger.info("Webhook: setting", metadata: ["url": "\(webhookURL)"])
+        logger.info("Configuring Telegram webhook", metadata: ["url": "\(webhookURL)"])
         await setWebhook(app: app, url: webhookURL)
     }
 
@@ -46,10 +46,10 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
                 body: .json(.init(drop_pending_updates: dropPendingUpdates))
             )
             if response.extract(logger: app.logger).isSuccess {
-                app.logger.info("Webhook: deleted")
+                app.logger.info("Telegram webhook deleted")
             }
         } catch {
-            app.logger.error("Webhook: delete failed", metadata: ["error": "\(error)"])
+            app.logger.error("Telegram webhook deletion failed", metadata: ["error": "\(error)"])
         }
     }
 
@@ -59,10 +59,10 @@ struct TelegramWebhookLifecycle: LifecycleHandler {
                 body: .json(.init(url: url, drop_pending_updates: config.deleteWebhookOnStart, secret_token: config.webhookSecretToken))
             )
             if response.extract(logger: app.logger).isSuccess {
-                app.logger.info("Webhook: configured", metadata: ["url": "\(url)"])
+                app.logger.info("Telegram webhook configured", metadata: ["url": "\(url)"])
             }
         } catch {
-            app.logger.error("Webhook: set failed", metadata: ["error": "\(error)"])
+            app.logger.error("Telegram webhook setup failed", metadata: ["error": "\(error)"])
         }
     }
 

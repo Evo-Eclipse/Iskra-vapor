@@ -15,7 +15,7 @@ struct TelegramPollingLifecycle: LifecycleHandler {
     }
 
     func shutdown(_ app: Application) {
-        app.logger.info("Stopping Telegram long polling...")
+        app.logger.info("Requesting Telegram long polling shutdown")
         app.storage[PollingTaskKey.self]?.cancel()
         app.storage[PollingTaskKey.self] = nil
     }

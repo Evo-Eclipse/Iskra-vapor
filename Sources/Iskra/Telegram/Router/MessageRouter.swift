@@ -51,7 +51,7 @@ struct MessageRouter: Sendable {
                 return
             }
             // Unknown command — log and continue to text handler
-            context.logger.debug("Unknown command: /\(command.name)")
+            context.logger.debug("Received unknown command /\(command.name); falling back to text handler")
         }
 
         // 2. Route by content type — O(1) switch-like dispatch

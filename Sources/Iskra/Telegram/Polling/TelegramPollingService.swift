@@ -31,7 +31,7 @@ struct TelegramPollingService: Sendable {
 
     /// Starts the polling loop and returns a handle to cancel it.
     func start() -> Task<Void, Never> {
-        logger.info("Polling: start", metadata: ["timeout": "\(timeout)s", "limit": "\(limit)"])
+        logger.info("Starting Telegram long polling", metadata: ["timeout": "\(timeout)s", "limit": "\(limit)"])
 
         return Task {
             await pollingLoop()
@@ -70,13 +70,13 @@ struct TelegramPollingService: Sendable {
             } catch is CancellationError {
                 break
             } catch {
-                logger.error("Polling error: \(error)")
+                logger.error("Telegram long polling failed: \(error)")
                 // Back off on errors to avoid hammering the API
                 try? await Task.sleep(for: .seconds(5))
             }
         }
 
-        logger.info("Polling: stopped")
+        logger.info("Telegram long polling stopped")
     }
 
     // MARK: - API Calls
@@ -89,14 +89,14 @@ struct TelegramPollingService: Sendable {
     }
 
     private func deleteWebhookIfNeeded(client: Client) async {
-        logger.info("Polling: deleting webhook")
+        logger.info("Deleting Telegram webhook to enable long polling")
         do {
             let response = try await client.deleteWebhook(body: .json(.init(drop_pending_updates: false)))
             if response.extract(logger: logger).isSuccess {
-                logger.info("Polling: webhook deleted")
+                logger.info("Telegram webhook deleted; long polling enabled")
             }
         } catch {
-            logger.error("Polling: webhook delete failed", metadata: ["error": "\(error)"])
+            logger.error("Failed to delete Telegram webhook", metadata: ["error": "\(error)"])
         }
     }
 

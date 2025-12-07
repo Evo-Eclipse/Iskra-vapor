@@ -17,7 +17,7 @@ struct BotAuthenticationMiddleware: AsyncMiddleware {
         // Validate secret token from Telegram
         guard let receivedToken = request.headers["X-Telegram-Bot-Api-Secret-Token"].first,
               receivedToken == token else {
-            request.logger.warning("Webhook authentication failed - invalid or missing secret token")
+            request.logger.warning("Webhook request rejected: invalid or missing secret token")
             throw Abort(.unauthorized, reason: "Invalid secret token")
         }
 

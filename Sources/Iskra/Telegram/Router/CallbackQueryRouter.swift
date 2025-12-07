@@ -19,7 +19,7 @@ struct CallbackQueryRouter: Sendable {
     /// Routes a callback query by data prefix. O(1) lookup.
     func route(_ query: Components.Schemas.CallbackQuery, context: UpdateContext) async {
         guard let data = query.data else {
-            context.logger.debug("Callback: missing data", metadata: ["id": "\(query.id)"])
+            context.logger.debug("Callback received without data", metadata: ["id": "\(query.id)"])
             return
         }
 
@@ -29,7 +29,7 @@ struct CallbackQueryRouter: Sendable {
             await handler.handle(query, parsed: parsed, context: context)
         } else {
             await fallbackHandler?.handle(query, parsed: parsed, context: context)
-                ?? context.logger.debug("Callback: no handler", metadata: ["prefix": "\(parsed.prefix)"])
+                ?? context.logger.debug("No callback handler found", metadata: ["prefix": "\(parsed.prefix)"])
         }
     }
 }

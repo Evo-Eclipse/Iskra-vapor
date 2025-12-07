@@ -6,7 +6,7 @@ public func configure(_ app: Application) async throws {
     let telegramConfig = try TelegramConfiguration.fromEnvironment()
     app.storage[TelegramConfigurationKey.self] = telegramConfig
 
-    app.logger.info("Telegram bot mode: \(telegramConfig.mode)")
+    app.logger.info("Starting Telegram bot in \(telegramConfig.mode) mode")
 
     // Build the update router (shared between webhook and polling)
     let router = buildUpdateRouter()
@@ -14,7 +14,7 @@ public func configure(_ app: Application) async throws {
     // Configure based on mode
     switch telegramConfig.mode {
     case .webhook:
-        app.logger.info("Webhook URL: \(telegramConfig.webhookURL ?? "not configured")")
+        app.logger.info("Telegram webhook endpoint is \(telegramConfig.webhookURL ?? "not configured")")
         try configureWebhook(app: app, config: telegramConfig, router: router)
     case .polling:
         configurePolling(app: app, config: telegramConfig, router: router)
