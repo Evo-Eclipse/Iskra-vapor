@@ -26,7 +26,7 @@ struct ProfileRepository: Sendable {
             displayName: moderation.name,
             description: moderation.description,
             photoFileId: moderation.photoFileId,
-            city: moderation.city,
+            city: moderation.city
         )
         try await profile.save(on: database)
         return profile.toDTO()
@@ -73,26 +73,26 @@ struct ProfileRepository: Sendable {
         for userId: UUID,
         filters: FilterDTO,
         excludedUserIds: Set<UUID>,
-        limit: Int = 10,
+        limit: Int = 10
     ) async throws -> [ProfileDTO] {
         // Calculate birth date range from age filters
         let now = Date()
         let maxBirthDate = Calendar.iso8601.date(
             byAdding: .year,
             value: -Int(filters.ageMin),
-            to: now,
+            to: now
         ) ?? now
         let minBirthDate = Calendar.iso8601.date(
             byAdding: .year,
             value: -Int(filters.ageMax) - 1,
-            to: now,
+            to: now
         ) ?? now
 
         var allExcluded = excludedUserIds
         allExcluded.insert(userId)
 
         return try await Profile.query(on: database)
-            .join(User.self, on: \Profile.$user.$id == \User.$id)
+            .join(User.self, on: \Profile.$id == \User.$id)
             .filter(User.self, \.$status == .active)
             .filter(User.self, \.$gender ~~ filters.targetGenders)
             .filter(User.self, \.$birthDate >= minBirthDate)

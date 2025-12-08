@@ -7,12 +7,10 @@ import Foundation
 final class Profile: Model, @unchecked Sendable {
     static let schema = "profiles"
 
-    /// Uses user_id as primary key (1-to-1 relationship)
+    /// Uses user_id as primary key (1-to-1 relationship).
+    /// This IS the foreign key to users table - no separate @Parent needed.
     @ID(custom: .userId, generatedBy: .user)
     var id: UUID?
-
-    @Parent(key: .userId)
-    var user: User
 
     @Field(key: .displayName)
     var displayName: String
@@ -38,10 +36,9 @@ final class Profile: Model, @unchecked Sendable {
         displayName: String,
         description: String,
         photoFileId: String,
-        city: String,
+        city: String
     ) {
         id = userId
-        $user.id = userId
         self.displayName = displayName
         self.description = description
         self.photoFileId = photoFileId
