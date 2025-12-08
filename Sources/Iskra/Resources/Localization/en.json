@@ -184,6 +184,65 @@
     },
     "saved": "Filters updated"
   },
+  "search": {
+    "menu": {
+      "title": "🔍 Discover People",
+      "hint": "Surf profiles, send likes, and find your match.",
+      "startSurfing": "Surf Profiles ⛵️",
+      "incoming": "💌 View Incoming",
+      "filters": "⚙️ Filters"
+    },
+    "actions": {
+      "like": "❤️ Like",
+      "skip": "⏭️ Skip",
+      "message": "💬 Message",
+      "report": "Report 🚫"
+    },
+    "buttons": {
+      "createProfile": "✨ Create Profile",
+      "browse": "Surf Profiles ⛵️",
+      "resume": "Resume Surfing ",
+      "stop": "Stop Surfing"
+    },
+    "error": {
+      "noProfile": "📝 You need an approved profile to surf.\n\nCreate your profile first!",
+      "notRegistered": "Please use /start to register first."
+    },
+    "noProfiles": {
+      "title": "😔 No more profiles",
+      "hint": "You've seen everyone matching your current filters.\n\nTry adjusting your filters or check back later!",
+      "adjustFilters": "⚙️ Adjust Filters",
+      "viewIncoming": "💌 View Incoming"
+    },
+    "stopped": "Surfing paused. Come back anytime!",
+    "match": {
+      "title": "🎉 It's a Match!",
+      "hint": "You both liked each other! Say hello and start chatting.",
+      "sendMessage": "💬 Send a Message",
+      "continue": "Keep Surfing"
+    },
+    "message": {
+      "prompt": "✍️ Write your message:\n\nThis will be delivered with your profile.",
+      "sent": "💌 Message sent! They'll see it with your profile."
+    },
+    "report": {
+      "sent": "🚩 Report submitted. Thank you for keeping the community safe."
+    },
+    "incoming": {
+      "empty": "💌 No incoming likes yet.\n\nKeep surfing — your next match might be one swipe away!",
+      "done": "✨ You've reviewed all incoming profiles!",
+      "message": "Sent you a message",
+      "liked": "Liked your profile",
+      "back": "← Back"
+    },
+    "notification": {
+      "like": "❤️ Someone liked your profile!",
+      "message": "💬 You received a message!",
+      "match": "🎉 You have a new match!",
+      "viewProfiles": "View Profiles",
+      "viewMatch": "View Match"
+    }
+  },
   "errors": {
     "generic": "⚠️ Something went wrong. Please try again.",
     "invalidCallback": "Invalid action"

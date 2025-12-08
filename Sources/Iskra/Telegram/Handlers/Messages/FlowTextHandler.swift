@@ -25,6 +25,10 @@ struct FlowTextHandler: TextMessageHandler {
         case .settings(.filtersAgeInput):
             await SearchSettingsFlow.handleCustomAgeInput(text: text, chatId: user.id, context: context)
 
+        // Search message composition
+        case .search(.composingMessage(let targetId)):
+            await SearchFlow.sendMessage(text: text, targetUserId: targetId, chatId: user.id, context: context)
+
         default:
             break // Not in a text-input state
         }
