@@ -147,34 +147,42 @@
   },
   "filters": {
     "menu": {
-      "title": "⚙️ Search Filters",
-      "body": "Customize who you see in your feed.\n\nCurrent settings:",
-      "gender": "👤 Gender: %@",
-      "age": "🎂 Age: %@",
-      "done": "✅ Done"
+      "title": "⚙️ Search filters",
+      "body": "Adjust who you want to see in your feed.",
+      "gender": "✨ Interested in: %@",
+      "age": "🎂 Age range: %@",
+      "done": "Save & Close"
     },
     "gender": {
-      "title": "👤 Who would you like to see?",
-      "own": "Same gender",
+      "title": "✨ Who would you like to meet?",
+      "own": "My gender",
       "opposite": "Opposite gender",
       "any": "Everyone"
     },
     "age": {
-      "title": "🎂 Age range preference",
-      "peers": "Peers (±3 years)",
-      "young": "18-25",
-      "mid": "26-35",
-      "mature": "35+",
-      "any": "Any age"
+      "title": "🎂 Age preference",
+      "hint": "Select relative to your age.",
+      "peers": "Peers (Same age)",
+      "bitOlder": "Slightly older (up to +3y)",
+      "older": "Older (up to +5y)",
+      "bitYounger": "Slightly younger (up to -3y)",
+      "younger": "Younger (up to -5y)",
+      "any": "All ages",
+      "custom": "Custom range..."
+    },
+    "ageCustom": {
+      "title": "Set custom age range",
+      "hint": "Example: 20-28",
+      "errorFormat": "Please use format: min-max (e.g., 20-28)",
+      "errorRange": "Age allows from 16 to 99"
     },
     "labels": {
-      "own": "Same gender",
+      "own": "My gender",
       "opposite": "Opposite gender",
       "any": "Any",
-      "peers": "Peers (±3)",
-      "ageRange": "%d-%d years"
+      "range": "%d-%d y.o."
     },
-    "saved": "✅ Filters saved! Your search results have been updated."
+    "saved": "Filters updated"
   },
   "errors": {
     "generic": "⚠️ Something went wrong. Please try again.",

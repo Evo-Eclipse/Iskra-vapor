@@ -21,6 +21,10 @@ struct FlowTextHandler: TextMessageHandler {
         case .profile(.editing(.bio)):
             await ProfileFlow.processEditedBio(text: text, message: message, context: context)
 
+        // Filter settings
+        case .settings(.filtersAgeInput):
+            await SearchSettingsFlow.handleCustomAgeInput(text: text, chatId: user.id, context: context)
+
         default:
             break // Not in a text-input state
         }

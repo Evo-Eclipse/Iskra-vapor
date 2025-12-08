@@ -85,12 +85,20 @@ struct FiltersCallbackHandler: CallbackHandler {
 
         case "age":
             guard let messageId, let option = value else { return }
-            await SearchSettingsFlow.selectAge(
-                option: option,
-                chatId: chatId,
-                messageId: messageId,
-                context: context
-            )
+            if option == "custom" {
+                await SearchSettingsFlow.showCustomAgePrompt(
+                    chatId: chatId,
+                    messageId: messageId,
+                    context: context
+                )
+            } else {
+                await SearchSettingsFlow.selectAge(
+                    option: option,
+                    chatId: chatId,
+                    messageId: messageId,
+                    context: context
+                )
+            }
 
         case "done":
             await SearchSettingsFlow.done(chatId: chatId, context: context)

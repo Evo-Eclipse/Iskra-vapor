@@ -89,22 +89,28 @@ extension SearchSettingsFlow {
 
         // MARK: - Age Options
 
-        /// Shows age filter selection options.
+        /// Shows age filter selection options with relative choices.
         static func showAgeOptions(
             chatId: Int64,
             messageId: Int64,
             context: UpdateContext
         ) async {
             let title = L10n["filters.age.title"]
+            let hint = L10n["filters.age.hint"]
+            let text = "\(title)\n\n\(hint)"
 
             var kb = KeyboardBuilder(type: .inline)
             kb.button(text: L10n["filters.age.peers"], callbackData: "filter:age:peers")
             kb.row()
-            kb.button(text: L10n["filters.age.young"], callbackData: "filter:age:young")
-            kb.button(text: L10n["filters.age.mid"], callbackData: "filter:age:mid")
+            kb.button(text: L10n["filters.age.bitOlder"], callbackData: "filter:age:bitOlder")
+            kb.button(text: L10n["filters.age.bitYounger"], callbackData: "filter:age:bitYounger")
             kb.row()
-            kb.button(text: L10n["filters.age.mature"], callbackData: "filter:age:mature")
+            kb.button(text: L10n["filters.age.older"], callbackData: "filter:age:older")
+            kb.button(text: L10n["filters.age.younger"], callbackData: "filter:age:younger")
+            kb.row()
             kb.button(text: L10n["filters.age.any"], callbackData: "filter:age:any")
+            kb.row()
+            kb.button(text: L10n["filters.age.custom"], callbackData: "filter:age:custom")
             kb.row()
             kb.button(text: L10n["common.back"], callbackData: "filter:menu")
 
@@ -112,11 +118,54 @@ extension SearchSettingsFlow {
                 _ = try await context.client.editMessageText(body: .json(.init(
                     chat_id: .case1(chatId),
                     message_id: messageId,
-                    text: title,
+                    text: text,
                     reply_markup: kb.buildInline()
                 )))
             } catch {
                 context.logger.error("Failed to show age options: \(error)")
+            }
+        }
+
+        /// Prompts user to enter custom age range.
+        static func showCustomAgePrompt(
+            chatId: Int64,
+            messageId: Int64,
+            context: UpdateContext
+        ) async {
+            let title = L10n["filters.ageCustom.title"]
+            let hint = L10n["filters.ageCustom.hint"]
+            let text = "\(title)\n\n\(hint)"
+
+            var kb = KeyboardBuilder(type: .inline)
+            kb.button(text: L10n["common.back"], callbackData: "filter:show:age")
+
+            do {
+                _ = try await context.client.editMessageText(body: .json(.init(
+                    chat_id: .case1(chatId),
+                    message_id: messageId,
+                    text: text,
+                    reply_markup: kb.buildInline()
+                )))
+            } catch {
+                context.logger.error("Failed to show custom age prompt: \(error)")
+            }
+        }
+
+        /// Shows error for invalid custom age input.
+        static func showCustomAgeError(
+            chatId: Int64,
+            errorKey: String,
+            context: UpdateContext
+        ) async {
+            let error = L10n[errorKey]
+
+            do {
+                _ = try await context.client.sendMessage(body: .json(.init(
+                    chat_id: .case1(chatId),
+                    text: error
+                )))
+            } catch {
+                context.logger.error("Failed to show age error: \(error)")
             }
         }
 
@@ -171,10 +220,10 @@ extension SearchSettingsFlow {
         private static func ageDisplayLabel(min: Int16, max: Int16) -> String {
             if min <= 16 && max >= 99 {
                 return L10n["filters.labels.any"]
-            } else if max - min <= 6 {
-                return L10n["filters.labels.peers"]
             } else {
-                return "\(min)-\(max)"
+                return L10n["filters.labels.range"]
+                    .replacingOccurrences(of: "%d", with: "\(min)", options: [], range: nil)
+                    .replacingOccurrences(of: "%d", with: "\(max)")
             }
         }
     }

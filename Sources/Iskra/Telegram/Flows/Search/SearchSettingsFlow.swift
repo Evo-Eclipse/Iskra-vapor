@@ -116,7 +116,21 @@ enum SearchSettingsFlow {
         )
     }
 
-    /// Handles age filter selection.
+    /// Shows custom age input prompt.
+    static func showCustomAgePrompt(
+        chatId: Int64,
+        messageId: Int64,
+        context: UpdateContext
+    ) async {
+        context.setState(.settings(.filtersAgeInput), for: chatId)
+        await Presenter.showCustomAgePrompt(
+            chatId: chatId,
+            messageId: messageId,
+            context: context
+        )
+    }
+
+    /// Handles age filter selection (relative options).
     static func selectAge(
         option: String,
         chatId: Int64,
@@ -128,30 +142,112 @@ enum SearchSettingsFlow {
                 return
             }
             let userId = user.id
+            let userAge = Int16(user.age)
 
-            // Convert option to age range
+            // Convert option to age range (all include user's age)
             let ageMin: Int16
             let ageMax: Int16
+
             switch option {
             case "peers":
-                let age = Int16(user.age)
-                ageMin = max(16, age - 3)
-                ageMax = min(99, age + 3)
-            case "young":
-                ageMin = 18
-                ageMax = 25
-            case "mid":
-                ageMin = 26
-                ageMax = 35
-            case "mature":
-                ageMin = 35
-                ageMax = 99
-            default: // "any"
+                // Exactly their age
+                ageMin = userAge
+                ageMax = userAge
+            case "bitOlder":
+                // Their age to +3
+                ageMin = userAge
+                ageMax = min(99, userAge + 3)
+            case "older":
+                // Their age to +5
+                ageMin = userAge
+                ageMax = min(99, userAge + 5)
+            case "bitYounger":
+                // -3 to their age
+                ageMin = max(16, userAge - 3)
+                ageMax = userAge
+            case "younger":
+                // -5 to their age
+                ageMin = max(16, userAge - 5)
+                ageMax = userAge
+            case "any":
                 ageMin = 16
                 ageMax = 99
+            default:
+                return // Unknown option
             }
 
-            // Get current filter or create new
+            await saveAgeRange(
+                userId: userId,
+                ageMin: ageMin,
+                ageMax: ageMax,
+                context: context
+            )
+
+            // Refresh menu
+            await showMenu(chatId: chatId, messageId: messageId, context: context)
+        } catch {
+            context.logger.error("Failed to update age filter: \(error)")
+        }
+    }
+
+    /// Handles custom age range text input (format: "min-max").
+    static func handleCustomAgeInput(
+        text: String,
+        chatId: Int64,
+        context: UpdateContext
+    ) async {
+        // Parse "min-max" format
+        let parts = text.split(separator: "-").compactMap { Int16($0.trimmingCharacters(in: .whitespaces)) }
+
+        guard parts.count == 2 else {
+            await Presenter.showCustomAgeError(
+                chatId: chatId,
+                errorKey: "filters.ageCustom.errorFormat",
+                context: context
+            )
+            return
+        }
+
+        let ageMin = parts[0]
+        let ageMax = parts[1]
+
+        guard ageMin >= 16, ageMax <= 99, ageMin <= ageMax else {
+            await Presenter.showCustomAgeError(
+                chatId: chatId,
+                errorKey: "filters.ageCustom.errorRange",
+                context: context
+            )
+            return
+        }
+
+        do {
+            guard let user = try await context.users.find(telegramId: chatId) else {
+                return
+            }
+
+            await saveAgeRange(
+                userId: user.id,
+                ageMin: ageMin,
+                ageMax: ageMax,
+                context: context
+            )
+
+            // Return to menu
+            context.setState(.settings(.filters), for: chatId)
+            await showMenu(chatId: chatId, context: context)
+        } catch {
+            context.logger.error("Failed to save custom age: \(error)")
+        }
+    }
+
+    /// Saves age range to filter.
+    private static func saveAgeRange(
+        userId: UUID,
+        ageMin: Int16,
+        ageMax: Int16,
+        context: UpdateContext
+    ) async {
+        do {
             if let _ = try await context.filters.find(userId: userId) {
                 _ = try await context.filters.update(
                     userId: userId,
@@ -167,11 +263,8 @@ enum SearchSettingsFlow {
                     lookingFor: [.friendship, .relationship]
                 )
             }
-
-            // Refresh menu
-            await showMenu(chatId: chatId, messageId: messageId, context: context)
         } catch {
-            context.logger.error("Failed to update age filter: \(error)")
+            context.logger.error("Failed to save age range: \(error)")
         }
     }
 

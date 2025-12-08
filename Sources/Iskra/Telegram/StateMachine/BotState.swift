@@ -73,6 +73,9 @@ enum ProfileField: String, Sendable, Equatable {
 
 /// Steps within settings/filter configuration.
 enum SettingsStep: Sendable, Equatable {
-    /// Configuring search filters.
+    /// Configuring search filters (menu).
     case filters
+
+    /// Awaiting custom age range input.
+    case filtersAgeInput
 }
