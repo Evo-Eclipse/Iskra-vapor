@@ -54,9 +54,11 @@ private func buildUpdateRouter() -> UpdateRouter {
         .onCommand("help", handler: HelpCommandHandler())
         // Callbacks
         .onCallback(prefix: "onboarding", handler: OnboardingCallbackHandler())
+        .onCallback(prefix: "profile", handler: ProfileCallbackHandler())
         .onCallback(prefix: "action", handler: ActionCallbackHandler())
         // Messages
-        .onText(OnboardingTextHandler())
+        .onText(FlowTextHandler())
+        .onPhoto(FlowPhotoHandler())
         .onSticker(EchoStickerHandler())
         .build()
 }

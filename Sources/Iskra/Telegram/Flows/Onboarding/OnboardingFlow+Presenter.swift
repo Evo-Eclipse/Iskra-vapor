@@ -49,8 +49,8 @@ extension OnboardingFlow {
             let prompt = L10n.Prompt.gender
             let text = "\(prompt.title)\n\n\(prompt.warning)"
             var kb = KeyboardBuilder(type: .inline)
-            kb.button(text: L10n.Gender.male, callbackData: "onboarding:gender:male")
-            kb.button(text: L10n.Gender.female, callbackData: "onboarding:gender:female")
+            kb.button(text: L10n.GenderOption.male, callbackData: "onboarding:gender:male")
+            kb.button(text: L10n.GenderOption.female, callbackData: "onboarding:gender:female")
             await send(text: text, keyboard: kb.buildInline(), chatId: chatId, context: context)
         }
 

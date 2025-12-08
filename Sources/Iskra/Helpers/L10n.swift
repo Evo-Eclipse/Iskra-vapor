@@ -84,20 +84,35 @@ extension L10n {
 // MARK: - Predefined Screens
 
 extension L10n.Screen {
+    // Onboarding
     static let welcome = L10n.Screen("onboarding.welcome")
     static let welcomeBack = L10n.Screen("onboarding.welcomeBack")
     static let usernameRequired = L10n.Screen("onboarding.usernameRequired")
     static let complete = L10n.Screen("onboarding.complete")
     static let sessionExpired = L10n.Screen("onboarding.sessionExpired")
     static let learnMore = L10n.Screen("onboarding.learnMore")
+
+    // Profile
+    static let profileStart = L10n.Screen("profile.start")
+    static let profilePreview = L10n.Screen("profile.preview")
+    static let profileSubmitted = L10n.Screen("profile.submitted")
+    static let profileEdit = L10n.Screen("profile.edit")
 }
 
 extension L10n.Prompt {
+    // Onboarding
     static let birthdate = L10n.Prompt("onboarding.birthdate")
     static let gender = L10n.Prompt("onboarding.gender")
+
+    // Profile
+    static let city = L10n.Prompt("profile.city")
+    static let goal = L10n.Prompt("profile.goal")
+    static let preferences = L10n.Prompt("profile.preferences")
+    static let bio = L10n.Prompt("profile.bio")
+    static let photo = L10n.Prompt("profile.photo")
 }
 
-// MARK: - Errors & Common
+// MARK: - Errors & Options
 
 extension L10n {
     enum Errors {
@@ -105,10 +120,40 @@ extension L10n {
         static var invalidCallback: String { L10n["errors.invalidCallback"] }
         static var format: String { L10n["onboarding.birthdate.errorFormat"] }
         static var underage: String { L10n["onboarding.birthdate.errorUnderage"] }
+        static var bioTooLong: String { L10n["profile.bio.errorTooLong"] }
+        static var photoInvalid: String { L10n["profile.photo.errorInvalid"] }
     }
 
-    enum Gender {
+    enum GenderOption {
         static var male: String { L10n["onboarding.gender.options.male"] }
         static var female: String { L10n["onboarding.gender.options.female"] }
+    }
+
+    enum GoalOption {
+        static var friendship: String { L10n["profile.goal.options.friendship"] }
+        static var relationship: String { L10n["profile.goal.options.relationship"] }
+        static var both: String { L10n["profile.goal.options.both"] }
+
+        static func label(for goal: ProfileGoal) -> String {
+            switch goal {
+            case .friendship: friendship
+            case .relationship: relationship
+            case .both: both
+            }
+        }
+    }
+
+    enum PreferenceOption {
+        static var male: String { L10n["profile.preferences.options.male"] }
+        static var female: String { L10n["profile.preferences.options.female"] }
+        static var any: String { L10n["profile.preferences.options.any"] }
+
+        static func label(for pref: LookingForPreference) -> String {
+            switch pref {
+            case .male: male
+            case .female: female
+            case .any: any
+            }
+        }
     }
 }

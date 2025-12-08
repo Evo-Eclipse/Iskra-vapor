@@ -48,14 +48,78 @@
       "action": "← Back"
     }
   },
+  "profile": {
+    "start": {
+      "title": "Let's create your profile.",
+      "body": "",
+      "action": ""
+    },
+    "city": {
+      "title": "📍 First, enter your city:",
+      "hint": "",
+      "warning": "",
+      "confirm": "Selected city: %@\n\n💫 What are you looking for?"
+    },
+    "goal": {
+      "title": "💫 What are you looking for?",
+      "hint": "",
+      "warning": "",
+      "options": {
+        "friendship": "Friendship",
+        "relationship": "Relationship",
+        "both": "Both"
+      },
+      "confirm": "Selected goal: %@\n\n👀 Who would you like to meet?"
+    },
+    "preferences": {
+      "title": "👀 Who would you like to meet?",
+      "hint": "",
+      "warning": "",
+      "options": {
+        "male": "Men",
+        "female": "Women",
+        "any": "Everyone"
+      },
+      "confirm": "Looking for: %@\n\n✍️ Please write a brief description about yourself.\n\nMinimum: 10 characters\nMaximum: 600 characters\n\nTell others what makes you unique!"
+    },
+    "bio": {
+      "title": "✍️ Please write a brief description about yourself.",
+      "hint": "Minimum: 10 characters\nMaximum: 600 characters\n\nTell others what makes you unique!",
+      "warning": "",
+      "errorTooLong": "Description is too long. Please keep it under 600 characters.",
+      "errorTooShort": "Description is too short. Please write at least 10 character."
+    },
+    "photo": {
+      "title": "📸 Great! Now please upload your profile photo.",
+      "hint": "Send a photo that represents you well.",
+      "warning": "",
+      "errorInvalid": "Please send a photo."
+    },
+    "preview": {
+      "title": "Please confirm your profile:",
+      "body": "Is this information correct?",
+      "action": "✨ Confirm"
+    },
+    "submitted": {
+      "title": "Your profile has been submitted for review.",
+      "body": "We'll notify you once it's approved.\nThis usually takes a few hours.\n\nThank you for your patience!",
+      "action": ""
+    },
+    "edit": {
+      "title": "What would you like to change?",
+      "body": "",
+      "action": ""
+    }
+  },
   "errors": {
-    "generic": "Something went wrong. Please try again.",
+    "generic": "⚠️ Something went wrong. Please try again.",
     "invalidCallback": "Invalid action"
   },
   "common": {
     "cancel": "Cancel",
     "back": "← Back",
     "confirm": "Confirm",
-    "skip": "Skip"
+    "skip": "Skip",
+    "edit": "Edit"
   }
 }
