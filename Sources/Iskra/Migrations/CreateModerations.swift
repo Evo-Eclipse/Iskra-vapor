@@ -20,11 +20,9 @@ struct CreateModerations: AsyncMigration {
 
         // Create indexes for moderation queue queries
         guard let sql = database as? any SQLDatabase else { return }
-        try await sql.raw("""
-            CREATE INDEX idx_moderations_user_id ON moderations(user_id);
-            CREATE INDEX idx_moderations_status ON moderations(status);
-            CREATE INDEX idx_moderations_status_created ON moderations(status, created_at);
-        """).run()
+        try await sql.raw("CREATE INDEX idx_moderations_user_id ON moderations(user_id)").run()
+        try await sql.raw("CREATE INDEX idx_moderations_status ON moderations(status)").run()
+        try await sql.raw("CREATE INDEX idx_moderations_status_created ON moderations(status, created_at)").run()
     }
 
     func revert(on database: any Database) async throws {
