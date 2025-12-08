@@ -18,11 +18,9 @@ struct CreateInteractions: AsyncMigration {
 
         // Create indexes for interaction queries
         guard let sql = database as? any SQLDatabase else { return }
-        try await sql.raw("""
-            CREATE INDEX idx_interactions_actor_id ON interactions(actor_id);
-            CREATE INDEX idx_interactions_target_id ON interactions(target_id);
-            CREATE INDEX idx_interactions_actor_action ON interactions(actor_id, action) WHERE is_hidden = false;
-        """).run()
+        try await sql.raw("CREATE INDEX idx_interactions_actor_id ON interactions(actor_id)").run()
+        try await sql.raw("CREATE INDEX idx_interactions_target_id ON interactions(target_id)").run()
+        try await sql.raw("CREATE INDEX idx_interactions_actor_action ON interactions(actor_id, action) WHERE is_hidden = false").run()
     }
 
     func revert(on database: any Database) async throws {
