@@ -1,10 +1,10 @@
+import Fluent
 import Logging
 
 /// Request-scoped context passed to all handlers.
 ///
-/// Contains data specific to the current request that should not be
-/// injected at initialization time. Long-lived services should be
-/// injected via constructor DI instead.
+/// Contains services and data specific to the current request.
+/// Prefer using context properties over creating new instances.
 struct UpdateContext: Sendable {
     /// The update's unique identifier from Telegram.
     let updateId: Int64
@@ -12,8 +12,11 @@ struct UpdateContext: Sendable {
     /// Request-scoped logger with update metadata.
     let logger: Logger
 
-    /// Bot token for making API calls.
-    let botToken: String
+    /// Telegram Bot API client for sending messages.
+    let client: Client
+
+    /// Database connection for persistence operations.
+    let db: any Database
 
     /// Shared session storage for state management.
     let sessions: SessionStorage

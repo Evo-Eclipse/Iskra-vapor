@@ -17,14 +17,15 @@ public func configure(_ app: Application) async throws {
     // Build shared services
     let router = buildUpdateRouter()
     let sessions = SessionStorage()
+    let client = TelegramClientFactory.makeClient(botToken: telegramConfig.botToken)
 
     // Configure based on mode
     switch telegramConfig.mode {
     case .webhook:
         app.logger.info("Telegram webhook endpoint is \(telegramConfig.webhookURL ?? "not configured")")
-        try configureWebhook(app: app, config: telegramConfig, router: router, sessions: sessions)
+        try configureWebhook(app: app, config: telegramConfig, router: router, client: client, sessions: sessions)
     case .polling:
-        configurePolling(app: app, config: telegramConfig, router: router, sessions: sessions)
+        configurePolling(app: app, config: telegramConfig, router: router, client: client, sessions: sessions)
     }
 
     // Prune inactive sessions
@@ -59,6 +60,7 @@ private func configureWebhook(
     app: Application,
     config: TelegramConfiguration,
     router: UpdateRouter,
+    client: Client,
     sessions: SessionStorage
 ) throws {
     // Register authentication middleware (validates X-Telegram-Bot-Api-Secret-Token)
@@ -67,7 +69,8 @@ private func configureWebhook(
     // Register webhook controller
     let webhookController = TelegramWebhookController(
         router: router,
-        botToken: config.botToken,
+        client: client,
+        db: app.db,
         sessions: sessions
     )
     try app.register(collection: webhookController)
@@ -82,12 +85,15 @@ private func configurePolling(
     app: Application,
     config: TelegramConfiguration,
     router: UpdateRouter,
+    client: Client,
     sessions: SessionStorage
 ) {
     let pollingService = TelegramPollingService(
         config: config,
         router: router,
         logger: app.logger,
+        client: client,
+        db: app.db,
         sessions: sessions,
         timeout: config.pollingTimeout,
         limit: config.pollingLimit
