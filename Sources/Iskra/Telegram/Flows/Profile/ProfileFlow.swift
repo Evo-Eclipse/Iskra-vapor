@@ -159,8 +159,31 @@ enum ProfileFlow {
     }
 
     static func showEditMenu(query: Components.Schemas.CallbackQuery, context: UpdateContext) async {
-        let userId = query.from.id
-        await Presenter.editMenu(chatId: userId, context: context)
+        let telegramId = query.from.id
+        let session = context.session(for: telegramId)
+
+        // If no draft exists, try to load from rejected moderation
+        if session.profileDraft == nil {
+            do {
+                if let user = try await context.users.find(telegramId: telegramId),
+                   let rejected = try await context.moderations.findLatestRejected(userId: user.id) {
+                    context.updateSession(for: telegramId) { session in
+                        session.profileDraft = ProfileDraft(
+                            city: rejected.city,
+                            goal: .both,  // TODO: store goal in moderation
+                            lookingFor: .any,  // TODO: store lookingFor in moderation
+                            bio: rejected.description,
+                            photoFileId: rejected.photoFileId
+                        )
+                        session.state = .profile(.previewing)
+                    }
+                }
+            } catch {
+                context.logger.error("Failed to load rejected moderation: \(error)")
+            }
+        }
+
+        await Presenter.editMenu(chatId: telegramId, context: context)
         await Presenter.answerCallback(query: query, context: context)
     }
 

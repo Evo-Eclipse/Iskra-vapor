@@ -8,25 +8,16 @@ import Foundation
 /// - `mod:reason:{uuid}:{reason}` — reject with specific reason
 struct ModerationCallbackHandler: CallbackHandler {
     func handle(_ query: Components.Schemas.CallbackQuery, parsed: ParsedCallback, context: UpdateContext) async {
-        context.logger.info("Moderation callback received", metadata: [
-            "prefix": "\(parsed.prefix)",
-            "payload": "\(parsed.payload ?? "nil")"
-        ])
-
         guard let payload = parsed.payload else {
-            context.logger.warning("Moderation callback missing payload")
             await answerWithError(query: query, context: context)
             return
         }
 
         let parts = payload.split(separator: ":", maxSplits: 1)
         guard let action = parts.first else {
-            context.logger.warning("Moderation callback missing action")
             await answerWithError(query: query, context: context)
             return
         }
-
-        context.logger.info("Moderation action", metadata: ["action": "\(action)"])
 
         switch action {
         case "approve":
@@ -85,7 +76,7 @@ struct ModerationCallbackHandler: CallbackHandler {
             // 1. Approve moderation
             guard let moderation = try await context.moderations.approve(id: moderationId) else {
                 context.logger.warning("Moderation not found: \(moderationId)")
-                await answerWithText(query: query, text: "Moderation not found", context: context)
+                await answerWithText(query: query, text: L10n["moderation.admin.notFound"], context: context)
                 return
             }
 
@@ -95,7 +86,7 @@ struct ModerationCallbackHandler: CallbackHandler {
             // 3. Get user's Telegram ID to notify them
             guard let user = try await context.users.find(id: moderation.userId) else {
                 context.logger.warning("User not found for moderation: \(moderationId)")
-                await answerWithText(query: query, text: "✅ Approved (user not found for notification)", context: context)
+                await answerWithText(query: query, text: L10n["moderation.admin.userNotFound"], context: context)
                 return
             }
 
@@ -103,8 +94,8 @@ struct ModerationCallbackHandler: CallbackHandler {
             await notifyUserApproved(telegramId: user.telegramId, context: context)
 
             // 5. Update admin message
-            await updateAdminMessage(query: query, status: "✅ APPROVED", context: context)
-            await answerWithText(query: query, text: "✅ Profile approved", context: context)
+            await updateAdminMessage(query: query, status: L10n["moderation.admin.statusApproved"], context: context)
+            await answerWithText(query: query, text: L10n["moderation.admin.approved"], context: context)
 
         } catch {
             context.logger.error("Failed to approve moderation: \(error)")
@@ -120,12 +111,13 @@ struct ModerationCallbackHandler: CallbackHandler {
         context: UpdateContext
     ) async {
         var kb = KeyboardBuilder(type: .inline)
-        kb.button(text: "✅ Approve", callbackData: "mod:approve:\(moderationId.uuidString)")
-        kb.button(text: "❌ Reject", callbackData: "mod:reject:\(moderationId.uuidString)")
+        kb.button(text: L10n["moderation.admin.approve"], callbackData: "mod:approve:\(moderationId.uuidString)")
+        kb.button(text: L10n["moderation.admin.reject"], callbackData: "mod:reject:\(moderationId.uuidString)")
 
         if let messageData = query.message {
-            let chatId = messageData.value["chat"].flatMap { ($0 as? [String: Any])?["id"] as? Int64 }
-            let messageId = messageData.value["message_id"] as? Int64
+            let chatDict = messageData.value["chat"] as? [String: Any]
+            let chatId = chatDict?["id"] as? Int64 ?? (chatDict?["id"] as? Int).map { Int64($0) }
+            let messageId = (messageData.value["message_id"] as? Int64) ?? (messageData.value["message_id"] as? Int).map { Int64($0) }
 
             if let chatId, let messageId {
                 do {
@@ -151,17 +143,17 @@ struct ModerationCallbackHandler: CallbackHandler {
     ) async {
         // Build rejection reason buttons
         var kb = KeyboardBuilder(type: .inline)
-        kb.button(text: "📸 Photo issue", callbackData: "mod:reason:\(moderationId.uuidString):photo")
+        kb.button(text: L10n["moderation.reasons.photo.button"], callbackData: "mod:reason:\(moderationId.uuidString):photo")
         kb.row()
-        kb.button(text: "📝 Bio issue", callbackData: "mod:reason:\(moderationId.uuidString):bio")
+        kb.button(text: L10n["moderation.reasons.bio.button"], callbackData: "mod:reason:\(moderationId.uuidString):bio")
         kb.row()
-        kb.button(text: "🚫 Inappropriate", callbackData: "mod:reason:\(moderationId.uuidString):inappropriate")
+        kb.button(text: L10n["moderation.reasons.inappropriate.button"], callbackData: "mod:reason:\(moderationId.uuidString):inappropriate")
         kb.row()
-        kb.button(text: "❓ Other", callbackData: "mod:reason:\(moderationId.uuidString):other")
+        kb.button(text: L10n["moderation.reasons.other.button"], callbackData: "mod:reason:\(moderationId.uuidString):other")
         kb.row()
-        kb.button(text: "← Back", callbackData: "mod:back:\(moderationId.uuidString)")
+        kb.button(text: L10n["common.back"], callbackData: "mod:back:\(moderationId.uuidString)")
 
-        // Try to edit inline keyboard using inline_message_id or message container
+        // Edit inline keyboard
         if let inlineMessageId = query.inline_message_id {
             do {
                 _ = try await context.client.editMessageReplyMarkup(body: .json(.init(
@@ -172,10 +164,10 @@ struct ModerationCallbackHandler: CallbackHandler {
                 context.logger.error("Failed to edit inline message: \(error)")
             }
         } else if let messageData = query.message {
-            // Extract chat_id and message_id from OpenAPIObjectContainer
-            let chatId = messageData.value["chat"].flatMap { ($0 as? [String: Any])?["id"] as? Int64 }
-            let messageId = messageData.value["message_id"] as? Int64
-            
+            let chatDict = messageData.value["chat"] as? [String: Any]
+            let chatId = chatDict?["id"] as? Int64 ?? (chatDict?["id"] as? Int).map { Int64($0) }
+            let messageId = (messageData.value["message_id"] as? Int64) ?? (messageData.value["message_id"] as? Int).map { Int64($0) }
+
             if let chatId, let messageId {
                 do {
                     _ = try await context.client.editMessageReplyMarkup(body: .json(.init(
@@ -203,14 +195,14 @@ struct ModerationCallbackHandler: CallbackHandler {
             // 1. Reject moderation
             guard let moderation = try await context.moderations.reject(id: moderationId, reason: reasonText) else {
                 context.logger.warning("Moderation not found: \(moderationId)")
-                await answerWithText(query: query, text: "Moderation not found", context: context)
+                await answerWithText(query: query, text: L10n["moderation.admin.notFound"], context: context)
                 return
             }
 
             // 2. Get user's Telegram ID to notify them
             guard let user = try await context.users.find(id: moderation.userId) else {
                 context.logger.warning("User not found for moderation: \(moderationId)")
-                await answerWithText(query: query, text: "❌ Rejected (user not found for notification)", context: context)
+                await answerWithText(query: query, text: L10n["moderation.admin.userNotFound"], context: context)
                 return
             }
 
@@ -218,8 +210,9 @@ struct ModerationCallbackHandler: CallbackHandler {
             await notifyUserRejected(telegramId: user.telegramId, reason: reasonText, context: context)
 
             // 4. Update admin message
-            await updateAdminMessage(query: query, status: "❌ REJECTED: \(reasonText)", context: context)
-            await answerWithText(query: query, text: "❌ Profile rejected", context: context)
+            let statusText = L10n["moderation.admin.statusRejected"].replacingOccurrences(of: "%@", with: reasonText)
+            await updateAdminMessage(query: query, status: statusText, context: context)
+            await answerWithText(query: query, text: L10n["moderation.admin.rejected"], context: context)
 
         } catch {
             context.logger.error("Failed to reject moderation: \(error)")
@@ -228,18 +221,9 @@ struct ModerationCallbackHandler: CallbackHandler {
     }
 
     private func rejectionReasonText(for key: String) -> String {
-        switch key {
-        case "photo":
-            return "Please use a clear photo of yourself"
-        case "bio":
-            return "Please update your bio to be more descriptive"
-        case "inappropriate":
-            return "Content doesn't meet our community guidelines"
-        case "other":
-            return "Please review and update your profile"
-        default:
-            return key
-        }
+        let localized = L10n["moderation.reasons.\(key).text"]
+        // If key not found, L10n returns "[keyPath]" wrapped in brackets
+        return localized.hasPrefix("[") ? key : localized
     }
 
     // MARK: - User Notifications
@@ -259,10 +243,16 @@ struct ModerationCallbackHandler: CallbackHandler {
     private func notifyUserRejected(telegramId: Int64, reason: String, context: UpdateContext) async {
         let text = L10n["moderation.rejected"]
             .replacingOccurrences(of: "%@", with: reason)
+
+        // Build "Edit Profile" button so user can fix issues
+        var kb = KeyboardBuilder(type: .inline)
+        kb.button(text: L10n["moderation.admin.editProfile"], callbackData: "profile:edit:menu")
+
         do {
             _ = try await context.client.sendMessage(body: .json(.init(
                 chat_id: .case1(telegramId),
-                text: text
+                text: text,
+                reply_markup: .InlineKeyboardMarkup(kb.buildInline())
             )))
         } catch {
             context.logger.error("Failed to notify user of rejection: \(error)")

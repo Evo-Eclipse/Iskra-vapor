@@ -21,6 +21,16 @@ struct ModerationRepository: Sendable {
             .toDTO()
     }
 
+    /// Finds latest rejected moderation for user (for re-editing).
+    func findLatestRejected(userId: UUID) async throws -> ModerationDTO? {
+        try await Moderation.query(on: database)
+            .filter(\.$user.$id == userId)
+            .filter(\.$status == .rejected)
+            .sort(\.$closedAt, .descending)
+            .first()?
+            .toDTO()
+    }
+
     /// Gets all pending moderations for admin queue.
     func findAllPending(limit: Int = 50) async throws -> [ModerationDTO] {
         try await Moderation.query(on: database)

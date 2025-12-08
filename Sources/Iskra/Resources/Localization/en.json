@@ -114,7 +114,36 @@
   "moderation": {
     "newProfile": "NEW PROFILE FOR REVIEW\n\nUser: @{username}\nCity: {city}\nGoal: {goal}\nLooking for: {pref}\n\nDescription:\n{bio}",
     "approved": "Your profile is live! 🎉\n\nWelcome to the community. Now go out there and make an impact. ✨",
-    "rejected": "⚠️ We need a quick revision.\n\nThanks for submitting! We found one small issue:\n\nReason: %@\n\nNo worries—just update it and resubmit. You've got this! 🍪"
+    "rejected": "⚠️ We need a quick revision.\n\nThanks for submitting! We found one small issue:\n\nReason: %@\n\nNo worries — just update it and resubmit. You've got this! 🍪",
+    "admin": {
+      "approve": "✅ Approve",
+      "reject": "❌ Reject",
+      "approved": "✅ Profile approved",
+      "rejected": "❌ Profile rejected",
+      "statusApproved": "✅ APPROVED",
+      "statusRejected": "❌ REJECTED: %@",
+      "notFound": "Moderation not found",
+      "userNotFound": "User not found for notification",
+      "editProfile": "✏️ Edit Profile"
+    },
+    "reasons": {
+      "photo": {
+        "button": "📸 Photo content",
+        "text": "Please upload a photo that represents you"
+      },
+      "bio": {
+        "button": "📝 Bio text",
+        "text": "Please write something meaningful about yourself"
+      },
+      "inappropriate": {
+        "button": "🚫 Guidelines",
+        "text": "Please keep content safe and respectful"
+      },
+      "other": {
+        "button": "✏️ Correction",
+        "text": "A small adjustment is needed — contact support for help"
+      }
+    }
   },
   "errors": {
     "generic": "⚠️ Something went wrong. Please try again.",
