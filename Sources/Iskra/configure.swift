@@ -14,16 +14,17 @@ public func configure(_ app: Application) async throws {
 
     app.logger.info("Starting Telegram bot in \(telegramConfig.mode) mode")
 
-    // Build the update router (shared between webhook and polling)
+    // Build shared services
     let router = buildUpdateRouter()
+    let sessions = SessionStorage()
 
     // Configure based on mode
     switch telegramConfig.mode {
     case .webhook:
         app.logger.info("Telegram webhook endpoint is \(telegramConfig.webhookURL ?? "not configured")")
-        try configureWebhook(app: app, config: telegramConfig, router: router)
+        try configureWebhook(app: app, config: telegramConfig, router: router, sessions: sessions)
     case .polling:
-        configurePolling(app: app, config: telegramConfig, router: router)
+        configurePolling(app: app, config: telegramConfig, router: router, sessions: sessions)
     }
 
     // Register routes
@@ -49,7 +50,8 @@ private func buildUpdateRouter() -> UpdateRouter {
 private func configureWebhook(
     app: Application,
     config: TelegramConfiguration,
-    router: UpdateRouter
+    router: UpdateRouter,
+    sessions: SessionStorage
 ) throws {
     // Register authentication middleware (validates X-Telegram-Bot-Api-Secret-Token)
     app.middleware.use(BotAuthenticationMiddleware(expectedToken: config.webhookSecretToken))
@@ -57,7 +59,8 @@ private func configureWebhook(
     // Register webhook controller
     let webhookController = TelegramWebhookController(
         router: router,
-        botToken: config.botToken
+        botToken: config.botToken,
+        sessions: sessions
     )
     try app.register(collection: webhookController)
 
@@ -70,12 +73,14 @@ private func configureWebhook(
 private func configurePolling(
     app: Application,
     config: TelegramConfiguration,
-    router: UpdateRouter
+    router: UpdateRouter,
+    sessions: SessionStorage
 ) {
     let pollingService = TelegramPollingService(
         config: config,
         router: router,
         logger: app.logger,
+        sessions: sessions,
         timeout: config.pollingTimeout,
         limit: config.pollingLimit
     )
