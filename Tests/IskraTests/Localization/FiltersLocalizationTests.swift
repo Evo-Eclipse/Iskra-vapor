@@ -29,13 +29,16 @@ struct FiltersLocalizationTests {
 
     @Test("Test age filter strings exist")
     func testAgeFilterStringsExist() {
-        // Assert
+        // Assert - directional age options
         #expect(!L10n["filters.age.title"].hasPrefix("["))
+        #expect(!L10n["filters.age.hint"].hasPrefix("["))
         #expect(!L10n["filters.age.peers"].hasPrefix("["))
-        #expect(!L10n["filters.age.young"].hasPrefix("["))
-        #expect(!L10n["filters.age.mid"].hasPrefix("["))
-        #expect(!L10n["filters.age.mature"].hasPrefix("["))
+        #expect(!L10n["filters.age.bitOlder"].hasPrefix("["))
+        #expect(!L10n["filters.age.older"].hasPrefix("["))
+        #expect(!L10n["filters.age.bitYounger"].hasPrefix("["))
+        #expect(!L10n["filters.age.younger"].hasPrefix("["))
         #expect(!L10n["filters.age.any"].hasPrefix("["))
+        #expect(!L10n["filters.age.custom"].hasPrefix("["))
     }
 
     @Test("Test filter labels exist")
@@ -44,7 +47,7 @@ struct FiltersLocalizationTests {
         #expect(!L10n["filters.labels.own"].hasPrefix("["))
         #expect(!L10n["filters.labels.opposite"].hasPrefix("["))
         #expect(!L10n["filters.labels.any"].hasPrefix("["))
-        #expect(!L10n["filters.labels.peers"].hasPrefix("["))
+        #expect(!L10n["filters.labels.range"].hasPrefix("["))
     }
 
     @Test("Test saved confirmation exists")
@@ -52,7 +55,15 @@ struct FiltersLocalizationTests {
         // Assert
         let saved = L10n["filters.saved"]
         #expect(!saved.hasPrefix("["))
-        #expect(saved.contains("✅"))
+    }
+
+    @Test("Test custom age input strings exist")
+    func testCustomAgeInputStringsExist() {
+        // Assert
+        #expect(!L10n["filters.ageCustom.title"].hasPrefix("["))
+        #expect(!L10n["filters.ageCustom.hint"].hasPrefix("["))
+        #expect(!L10n["filters.ageCustom.errorFormat"].hasPrefix("["))
+        #expect(!L10n["filters.ageCustom.errorRange"].hasPrefix("["))
     }
 
     @Test("Test menu strings have placeholders")

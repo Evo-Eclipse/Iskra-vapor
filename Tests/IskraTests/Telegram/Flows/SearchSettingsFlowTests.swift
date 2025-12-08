@@ -40,22 +40,34 @@ struct FilterCallbackParsingTests {
 
     @Test("Test age filter callback parses correctly")
     func testAgeFilterCallbackParsesCorrectly() {
-        // Arrange
-        let data = "filter:age:18:25"
+        // Arrange - relative age (±5 years)
+        let data = "filter:age:5"
 
         // Act
         let parsed = ParsedCallback.parse(id: "3", data: data)
 
         // Assert
         #expect(parsed.prefix == "filter")
-        #expect(parsed.payload == "age:18:25")
+        #expect(parsed.payload == "age:5")
 
         // Verify nested parsing
-        let parts = parsed.payload!.split(separator: ":")
-        #expect(parts.count == 3)
+        let parts = parsed.payload!.split(separator: ":", maxSplits: 1)
+        #expect(parts.count == 2)
         #expect(String(parts[0]) == "age")
-        #expect(String(parts[1]) == "18")
-        #expect(String(parts[2]) == "25")
+        #expect(String(parts[1]) == "5")
+    }
+
+    @Test("Test custom age callback parses correctly")
+    func testCustomAgeCallbackParsesCorrectly() {
+        // Arrange
+        let data = "filter:age:custom"
+
+        // Act
+        let parsed = ParsedCallback.parse(id: "3b", data: data)
+
+        // Assert
+        #expect(parsed.prefix == "filter")
+        #expect(parsed.payload == "age:custom")
     }
 
     @Test("Test geo filter callback parses correctly")
