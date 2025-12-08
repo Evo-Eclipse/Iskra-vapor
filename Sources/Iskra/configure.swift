@@ -27,6 +27,14 @@ public func configure(_ app: Application) async throws {
         configurePolling(app: app, config: telegramConfig, router: router, sessions: sessions)
     }
 
+    // Prune inactive sessions
+    app.eventLoopGroup.next().scheduleRepeatedTask(initialDelay: .minutes(60), delay: .minutes(60)) { _ in
+        let removed = sessions.pruneInactive(olderThan: .seconds(3600 * 24)) // 24 hours
+        if removed > 0 {
+            app.logger.info("Pruned \(removed) inactive sessions")
+        }
+    }
+
     // Register routes
     try routes(app)
 }
