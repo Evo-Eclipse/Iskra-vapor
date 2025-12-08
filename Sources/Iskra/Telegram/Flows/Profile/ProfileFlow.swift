@@ -63,6 +63,10 @@ enum ProfileFlow {
         guard let userId = message.from?.id else { return }
         let bio = text.trimmingCharacters(in: .whitespacesAndNewlines)
 
+        guard bio.count >= 10 else {
+            await Presenter.bioTooShort(chatId: message.chat.id, context: context)
+            return
+        }
         guard bio.count <= 600 else {
             await Presenter.bioTooLong(chatId: message.chat.id, context: context)
             return

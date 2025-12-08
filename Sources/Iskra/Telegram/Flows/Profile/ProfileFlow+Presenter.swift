@@ -79,6 +79,10 @@ extension ProfileFlow {
             await send(text: L10n.Errors.bioTooLong, chatId: chatId, context: context)
         }
 
+        static func bioTooShort(chatId: Int64, context: UpdateContext) async {
+            await send(text: L10n.Errors.bioTooShort, chatId: chatId, context: context)
+        }
+
         static func photoInvalid(chatId: Int64, context: UpdateContext) async {
             await send(text: L10n.Errors.photoInvalid, chatId: chatId, context: context)
         }

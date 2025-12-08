@@ -121,6 +121,7 @@ extension L10n {
         static var format: String { L10n["onboarding.birthdate.errorFormat"] }
         static var underage: String { L10n["onboarding.birthdate.errorUnderage"] }
         static var bioTooLong: String { L10n["profile.bio.errorTooLong"] }
+        static var bioTooShort: String { L10n["profile.bio.errorTooShort"] }
         static var photoInvalid: String { L10n["profile.photo.errorInvalid"] }
     }
 
