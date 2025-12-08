@@ -145,6 +145,37 @@
       }
     }
   },
+  "filters": {
+    "menu": {
+      "title": "⚙️ Search Filters",
+      "body": "Customize who you see in your feed.\n\nCurrent settings:",
+      "gender": "👤 Gender: %@",
+      "age": "🎂 Age: %@",
+      "done": "✅ Done"
+    },
+    "gender": {
+      "title": "👤 Who would you like to see?",
+      "own": "Same gender",
+      "opposite": "Opposite gender",
+      "any": "Everyone"
+    },
+    "age": {
+      "title": "🎂 Age range preference",
+      "peers": "Peers (±3 years)",
+      "young": "18-25",
+      "mid": "26-35",
+      "mature": "35+",
+      "any": "Any age"
+    },
+    "labels": {
+      "own": "Same gender",
+      "opposite": "Opposite gender",
+      "any": "Any",
+      "peers": "Peers (±3)",
+      "ageRange": "%d-%d years"
+    },
+    "saved": "✅ Filters saved! Your search results have been updated."
+  },
   "errors": {
     "generic": "⚠️ Something went wrong. Please try again.",
     "invalidCallback": "Invalid action"
