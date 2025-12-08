@@ -58,6 +58,7 @@ private func buildUpdateRouter() -> UpdateRouter {
         // Commands
         .onCommand("start", handler: StartCommandHandler())
         .onCommand("help", handler: HelpCommandHandler())
+        .onCommand("menu", handler: MenuCommandHandler())
         .onCommand("filters", handler: FiltersCommandHandler())
         .onCommand("search", handler: SearchCommandHandler())
         // Callbacks

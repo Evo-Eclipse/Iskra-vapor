@@ -22,7 +22,7 @@ extension OnboardingFlow {
         }
 
         static func welcomeBack(chatId: Int64, user _: UserDTO, context: UpdateContext) async {
-            await send(text: L10n.Screen.welcomeBack.text, chatId: chatId, context: context)
+            await sendWithReplyKeyboard(text: L10n.Screen.welcomeBack.text, chatId: chatId, context: context)
         }
 
         static func usernameRequired(chatId: Int64, context: UpdateContext) async {
@@ -60,7 +60,7 @@ extension OnboardingFlow {
             let screen = L10n.Screen.complete
             var kb = KeyboardBuilder(type: .inline)
             kb.button(text: screen.action, callbackData: "profile:create")
-            await send(text: screen.text, keyboard: kb.buildInline(), chatId: chatId, context: context)
+            await sendWithBothKeyboards(text: screen.text, inlineKeyboard: kb.buildInline(), chatId: chatId, context: context)
         }
 
         // MARK: - Errors
@@ -84,6 +84,49 @@ extension OnboardingFlow {
                 )))
             } catch {
                 context.logger.error("Failed to send message: \(error)")
+            }
+        }
+        
+        /// Sends a message with the main menu reply keyboard.
+        static func sendWithReplyKeyboard(text: String, chatId: Int64, context: UpdateContext) async {
+            do {
+                _ = try await context.client.sendMessage(body: .json(.init(
+                    chat_id: .case1(chatId),
+                    text: text,
+                    reply_markup: .ReplyKeyboardMarkup(MainMenuFlow.Presenter.buildReplyKeyboard())
+                )))
+            } catch {
+                context.logger.error("Failed to send message: \(error)")
+            }
+        }
+        
+        /// Sends a message with inline keyboard, followed by reply keyboard setup.
+        static func sendWithBothKeyboards(
+            text: String,
+            inlineKeyboard: Components.Schemas.InlineKeyboardMarkup,
+            chatId: Int64,
+            context: UpdateContext
+        ) async {
+            // Send main message with inline keyboard
+            do {
+                _ = try await context.client.sendMessage(body: .json(.init(
+                    chat_id: .case1(chatId),
+                    text: text,
+                    reply_markup: .InlineKeyboardMarkup(inlineKeyboard)
+                )))
+            } catch {
+                context.logger.error("Failed to send message: \(error)")
+            }
+            
+            // Send a follow-up to establish the reply keyboard
+            do {
+                _ = try await context.client.sendMessage(body: .json(.init(
+                    chat_id: .case1(chatId),
+                    text: L10n["menu.hint"],
+                    reply_markup: .ReplyKeyboardMarkup(MainMenuFlow.Presenter.buildReplyKeyboard())
+                )))
+            } catch {
+                context.logger.error("Failed to send reply keyboard: \(error)")
             }
         }
 

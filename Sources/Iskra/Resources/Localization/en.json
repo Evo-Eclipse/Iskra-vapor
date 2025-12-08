@@ -199,11 +199,11 @@
   },
   "search": {
     "menu": {
-      "title": "🔍 Discover People",
-      "hint": "Surf profiles, send likes, and find your match.",
-      "startSurfing": "Surf Profiles ⛵️",
-      "incoming": "💌 View Incoming",
-      "filters": "⚙️ Filters"
+      "title": "⛵️ Surf",
+      "hint": "Browse profiles, send likes, and find your match.",
+      "startSurfing": "⛵️ Start Surfing",
+      "incoming": "❤️ Incoming",
+      "filters": "⚙️ Settings"
     },
     "actions": {
       "like": "❤️ Like",
@@ -213,9 +213,9 @@
     },
     "buttons": {
       "createProfile": "✨ Create Profile",
-      "browse": "Surf Profiles ⛵️",
-      "resume": "Resume Surfing ",
-      "stop": "Stop Surfing"
+      "browse": "⛵️ Surf",
+      "resume": "⛵️ Resume",
+      "stop": "⏸️ Pause"
     },
     "error": {
       "noProfile": "📝 You need an approved profile to surf.\n\nCreate your profile first!",
@@ -223,16 +223,16 @@
     },
     "noProfiles": {
       "title": "😔 No more profiles",
-      "hint": "You've seen everyone matching your current filters.\n\nTry adjusting your filters or check back later!",
-      "adjustFilters": "⚙️ Adjust Filters",
-      "viewIncoming": "💌 View Incoming"
+      "hint": "You've seen everyone matching your current filters.\n\nTry adjusting your settings or check back later!",
+      "adjustFilters": "⚙️ Settings",
+      "viewIncoming": "❤️ Incoming"
     },
     "stopped": "Surfing paused. Come back anytime!",
     "match": {
       "title": "🎉 It's a Match!",
       "hint": "You both liked each other! Say hello and start chatting.",
-      "sendMessage": "💬 Send a Message",
-      "continue": "Keep Surfing"
+      "sendMessage": "💬 Message",
+      "continue": "⛵️ Continue"
     },
     "message": {
       "prompt": "✍️ Write your message:\n\nThis will be delivered with your profile.",
@@ -242,7 +242,7 @@
       "sent": "🚩 Report submitted. Thank you for keeping the community safe."
     },
     "incoming": {
-      "empty": "💌 No incoming likes yet.\n\nKeep surfing — your next match might be one swipe away!",
+      "empty": "❤️ No incoming likes yet.\n\nKeep surfing — your next match might be one swipe away!",
       "done": "✨ You've reviewed all incoming profiles!",
       "message": "Sent you a message",
       "liked": "Liked your profile",
@@ -252,8 +252,8 @@
       "like": "❤️ Someone liked your profile!",
       "message": "💬 You received a message!",
       "match": "🎉 You have a new match!",
-      "viewProfiles": "View Profiles",
-      "viewMatch": "View Match"
+      "viewProfiles": "❤️ View",
+      "viewMatch": "🎉 View Match"
     }
   },
   "errors": {
@@ -266,5 +266,25 @@
     "confirm": "Confirm",
     "skip": "Skip",
     "edit": "Edit"
+  },
+  "menu": {
+    "title": "🏠 Main Menu",
+    "hint": "Use the buttons below to navigate.\n\n⛵️ Surf — Browse profiles, view incoming, adjust filters\n✨ Profile — View or edit your profile",
+    "notRegistered": "Please use /start to register first.",
+    "profile": {
+      "edit": "✏️ Edit",
+      "create": "✨ Create Profile",
+      "pending": "⏳ Your profile is under review.\n\nWe'll notify you once it's approved. This usually takes a few hours.",
+      "none": "📝 You don't have a profile yet.\n\nCreate one to start meeting people!"
+    }
+  },
+  "help": {
+    "title": "❓ Help & Commands",
+    "commands": "Available commands:\n\n/start — Start or restart the bot\n/menu — Show main menu\n/search — Start surfing profiles\n/filters — Adjust search filters\n/help — Show this help",
+    "hint": "💡 Tip: Use the buttons at the bottom of your screen for quick navigation!",
+    "buttons": {
+      "surf": "⛵️ Surf",
+      "profile": "✨ Profile"
+    }
   }
 }
