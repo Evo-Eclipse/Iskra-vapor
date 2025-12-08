@@ -11,26 +11,32 @@ extension SearchSettingsFlow {
             chatId: Int64,
             messageId: Int64?,
             filter: FilterDTO,
-            userGender: Gender,
+            user: UserDTO,
             context: UpdateContext
         ) async {
             let title = L10n["filters.menu.title"]
             let body = L10n["filters.menu.body"]
 
             // Format current settings
-            let genderLabel = genderDisplayLabel(for: filter.targetGenders, userGender: userGender)
+            let genderLabel = genderDisplayLabel(for: filter.targetGenders, userGender: user.gender)
             let ageLabel = ageDisplayLabel(min: filter.ageMin, max: filter.ageMax)
+            let spamBlockLabel = user.isMuted
+                ? L10n["filters.spamBlock.enabled"]
+                : L10n["filters.spamBlock.disabled"]
 
             let genderLine = L10n["filters.menu.gender"].replacingOccurrences(of: "%@", with: genderLabel)
             let ageLine = L10n["filters.menu.age"].replacingOccurrences(of: "%@", with: ageLabel)
+            let spamBlockLine = L10n["filters.menu.spamBlock"].replacingOccurrences(of: "%@", with: spamBlockLabel)
 
-            let text = "\(title)\n\n\(body)\n\n\(genderLine)\n\(ageLine)"
+            let text = "\(title)\n\n\(body)\n\n\(genderLine)\n\(ageLine)\n\(spamBlockLine)"
 
             // Build keyboard
             var kb = KeyboardBuilder(type: .inline)
             kb.button(text: genderLine, callbackData: "filter:show:gender")
             kb.row()
             kb.button(text: ageLine, callbackData: "filter:show:age")
+            kb.row()
+            kb.button(text: spamBlockLine, callbackData: "filter:toggle:spamblock")
             kb.row()
             kb.button(text: L10n["filters.menu.done"], callbackData: "filter:done")
 

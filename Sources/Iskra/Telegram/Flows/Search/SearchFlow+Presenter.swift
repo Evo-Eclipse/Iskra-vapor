@@ -345,16 +345,32 @@ extension SearchFlow {
             }
         }
 
-        /// Sends match notification to user.
-        static func sendMatchNotification(
+        /// Sends match notification with contact info to user.
+        static func sendMatchWithContact(
             toTelegramId: Int64,
             matchedUser: UserDTO,
+            matchedProfile: ProfileDTO?,
+            isMuted: Bool,
             context: UpdateContext
         ) async {
-            let text = L10n["search.notification.match"]
+            let name = matchedProfile?.displayName ?? "Someone"
+            let username = matchedUser.telegramUsername ?? "unknown"
+            let contactLink = "https://t.me/\(username)"
+
+            var text = L10n["match.notification.title"]
+                .replacingOccurrences(of: "%@", with: name)
+            text += "\n\n"
+            text += L10n["match.notification.contact"]
+                .replacingOccurrences(of: "%@", with: "@\(username)")
+            text += "\n\(contactLink)"
+
+            // Add muted/spam-block warning if applicable
+            if isMuted {
+                text += "\n\n⚠️ " + L10n["match.notification.spamBlockWarning"]
+            }
 
             var kb = KeyboardBuilder(type: .inline)
-            kb.button(text: L10n["search.notification.viewMatch"], callbackData: "search:incoming")
+            kb.urlButton(text: L10n["match.notification.openChat"], url: contactLink)
 
             do {
                 _ = try await context.client.sendMessage(body: .json(.init(

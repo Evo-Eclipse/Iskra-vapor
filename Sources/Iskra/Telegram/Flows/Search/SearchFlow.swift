@@ -85,18 +85,11 @@ enum SearchFlow {
                     matchType: .relationship // Default, could be from filter
                 )
 
-                // Notify both users
+                // Notify both users with contact info
                 await notifyMatch(
                     matchId: match?.id,
                     user1: user,
                     user2Id: targetUserId,
-                    context: context
-                )
-
-                // Show match celebration, then continue
-                await Presenter.showMatch(
-                    chatId: chatId,
-                    targetUserId: targetUserId,
                     context: context
                 )
             } else {
@@ -112,6 +105,47 @@ enum SearchFlow {
             await showNextCandidate(chatId: chatId, userId: user.id, context: context)
         } catch {
             context.logger.error("Failed to record like: \(error)")
+        }
+    }
+
+    /// Likes back from incoming view - creates a match.
+    static func likeBack(
+        actorId: UUID,
+        chatId: Int64,
+        context: UpdateContext
+    ) async {
+        do {
+            guard let user = try await context.users.find(telegramId: chatId) else { return }
+
+            // Record the like back
+            _ = try await context.interactions.record(
+                actorId: user.id,
+                targetId: actorId,
+                action: .like
+            )
+
+            // Hide the incoming interaction
+            _ = try await context.interactions.hide(actorId: actorId, targetId: user.id)
+
+            // Create match (mutual like confirmed)
+            let match = try await context.matches.create(
+                userA: user.id,
+                userB: actorId,
+                matchType: .relationship
+            )
+
+            // Notify both users with contact info
+            await notifyMatch(
+                matchId: match?.id,
+                user1: user,
+                user2Id: actorId,
+                context: context
+            )
+
+            // Show next incoming
+            await showNextIncoming(chatId: chatId, userId: user.id, context: context)
+        } catch {
+            context.logger.error("Failed to like back: \(error)")
         }
     }
 
@@ -368,8 +402,7 @@ enum SearchFlow {
         context: UpdateContext
     ) async {
         do {
-            guard let target = try await context.users.find(id: toUserId),
-                  !target.isMuted else { return }
+            guard let target = try await context.users.find(id: toUserId) else { return }
 
             await Presenter.sendLikeNotification(
                 toTelegramId: target.telegramId,
@@ -389,8 +422,7 @@ enum SearchFlow {
         context: UpdateContext
     ) async {
         do {
-            guard let target = try await context.users.find(id: toUserId),
-                  !target.isMuted else { return }
+            guard let target = try await context.users.find(id: toUserId) else { return }
 
             await Presenter.sendMessageNotification(
                 toTelegramId: target.telegramId,
@@ -403,7 +435,7 @@ enum SearchFlow {
         }
     }
 
-    /// Notifies both users about a match.
+    /// Notifies both users about a match with contact sharing.
     private static func notifyMatch(
         matchId: UUID?,
         user1: UserDTO,
@@ -413,14 +445,27 @@ enum SearchFlow {
         do {
             guard let user2 = try await context.users.find(id: user2Id) else { return }
 
-            // Notify user2 (user1 will see the match screen)
-            if !user2.isMuted {
-                await Presenter.sendMatchNotification(
-                    toTelegramId: user2.telegramId,
-                    matchedUser: user1,
-                    context: context
-                )
-            }
+            // Get profiles for display names
+            let profile1 = try await context.profiles.find(userId: user1.id)
+            let profile2 = try await context.profiles.find(userId: user2.id)
+
+            // Notify user2 with user1's contact
+            await Presenter.sendMatchWithContact(
+                toTelegramId: user2.telegramId,
+                matchedUser: user1,
+                matchedProfile: profile1,
+                isMuted: user1.isMuted,
+                context: context
+            )
+
+            // Notify user1 with user2's contact
+            await Presenter.sendMatchWithContact(
+                toTelegramId: user1.telegramId,
+                matchedUser: user2,
+                matchedProfile: profile2,
+                isMuted: user2.isMuted,
+                context: context
+            )
         } catch {
             context.logger.error("Failed to notify match: \(error)")
         }

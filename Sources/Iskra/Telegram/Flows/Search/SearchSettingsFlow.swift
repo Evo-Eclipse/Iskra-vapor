@@ -35,11 +35,33 @@ enum SearchSettingsFlow {
                 chatId: chatId,
                 messageId: messageId,
                 filter: filter,
-                userGender: user.gender,
+                user: user,
                 context: context
             )
         } catch {
             context.logger.error("Failed to show filter menu: \(error)")
+        }
+    }
+
+    // MARK: - Spam-Block Toggle
+
+    /// Toggles the user's spam-block (isMuted) status.
+    static func toggleSpamBlock(
+        chatId: Int64,
+        messageId: Int64,
+        context: UpdateContext
+    ) async {
+        do {
+            guard let user = try await context.users.find(telegramId: chatId) else { return }
+
+            // Toggle the status
+            let newValue = !user.isMuted
+            try await context.users.setMuted(newValue, for: user.id)
+
+            // Refresh menu
+            await showMenu(chatId: chatId, messageId: messageId, context: context)
+        } catch {
+            context.logger.error("Failed to toggle spam-block: \(error)")
         }
     }
 

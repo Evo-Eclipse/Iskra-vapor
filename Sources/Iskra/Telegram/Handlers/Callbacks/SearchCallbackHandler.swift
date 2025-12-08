@@ -24,12 +24,15 @@ struct SearchCallbackHandler: CallbackHandler {
             return nil
         }()
 
-        // Parse payload: action:value or just action
-        let parts = parsed.payload?.split(separator: ":", maxSplits: 1).map(String.init) ?? []
-        let action = parts.first ?? ""
-        let value = parts.count > 1 ? parts[1] : nil
+        // Parse payload: supports action, action:value, or action:subaction:value
+        guard let payload = parsed.payload else {
+            context.logger.warning("Search callback missing payload")
+            return
+        }
 
-        switch action {
+        let components = payload.split(separator: ":").map(String.init)
+
+        switch components.first {
         case "start":
             await SearchFlow.start(chatId: chatId, context: context)
 
@@ -40,7 +43,7 @@ struct SearchCallbackHandler: CallbackHandler {
             await SearchFlow.start(chatId: chatId, context: context)
 
         case "like":
-            if let targetId = value.flatMap({ UUID(uuidString: $0) }) {
+            if let targetId = components.dropFirst().first.flatMap({ UUID(uuidString: $0) }) {
                 await SearchFlow.like(
                     targetUserId: targetId,
                     chatId: chatId,
@@ -49,7 +52,7 @@ struct SearchCallbackHandler: CallbackHandler {
             }
 
         case "pass":
-            if let targetId = value.flatMap({ UUID(uuidString: $0) }) {
+            if let targetId = components.dropFirst().first.flatMap({ UUID(uuidString: $0) }) {
                 await SearchFlow.pass(
                     targetUserId: targetId,
                     chatId: chatId,
@@ -58,7 +61,7 @@ struct SearchCallbackHandler: CallbackHandler {
             }
 
         case "message":
-            if let targetId = value.flatMap({ UUID(uuidString: $0) }),
+            if let targetId = components.dropFirst().first.flatMap({ UUID(uuidString: $0) }),
                let msgId = messageId {
                 await SearchFlow.startMessage(
                     targetUserId: targetId,
@@ -73,7 +76,7 @@ struct SearchCallbackHandler: CallbackHandler {
             await SearchFlow.start(chatId: chatId, context: context)
 
         case "report":
-            if let targetId = value.flatMap({ UUID(uuidString: $0) }) {
+            if let targetId = components.dropFirst().first.flatMap({ UUID(uuidString: $0) }) {
                 await SearchFlow.report(
                     targetUserId: targetId,
                     chatId: chatId,
@@ -82,42 +85,39 @@ struct SearchCallbackHandler: CallbackHandler {
             }
 
         case "incoming":
-            await SearchFlow.showIncoming(chatId: chatId, context: context)
+            // Check for subaction: incoming:like:UUID or incoming:skip:UUID
+            if components.count >= 3 {
+                let subaction = components[1]
+                let valueString = components[2]
 
-        case "incoming:like":
-            // value contains actorId
-            if let actorId = value.flatMap({ UUID(uuidString: $0) }) {
-                // Like back
-                await SearchFlow.like(
-                    targetUserId: actorId,
-                    chatId: chatId,
-                    context: context
-                )
-            }
-
-        case "incoming:pass":
-            // value contains actorId - pass and continue
-            if let actorId = value.flatMap({ UUID(uuidString: $0) }) {
-                await SearchFlow.pass(
-                    targetUserId: actorId,
-                    chatId: chatId,
-                    context: context
-                )
-            }
-
-        case "incoming:skip":
-            // value contains interaction ID - skip without action
-            if let interactionId = value.flatMap({ UUID(uuidString: $0) }) {
-                await SearchFlow.respondToIncoming(
-                    interactionId: interactionId,
-                    action: .pass,
-                    chatId: chatId,
-                    context: context
-                )
+                switch subaction {
+                case "like":
+                    if let actorId = UUID(uuidString: valueString) {
+                        await SearchFlow.likeBack(
+                            actorId: actorId,
+                            chatId: chatId,
+                            context: context
+                        )
+                    }
+                case "skip":
+                    if let interactionId = UUID(uuidString: valueString) {
+                        await SearchFlow.respondToIncoming(
+                            interactionId: interactionId,
+                            action: .pass,
+                            chatId: chatId,
+                            context: context
+                        )
+                    }
+                default:
+                    context.logger.warning("Unknown incoming subaction: \(subaction)")
+                }
+            } else {
+                // Just "incoming" - show incoming list
+                await SearchFlow.showIncoming(chatId: chatId, context: context)
             }
 
         default:
-            context.logger.warning("Unknown search action: \(action)")
+            context.logger.warning("Unknown search action: \(components.first ?? "nil")")
         }
 
         await SearchFlow.Presenter.answerCallback(query: query, context: context)

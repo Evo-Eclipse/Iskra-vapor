@@ -103,6 +103,16 @@ struct FiltersCallbackHandler: CallbackHandler {
         case "done":
             await SearchSettingsFlow.done(chatId: chatId, context: context)
 
+        case "toggle":
+            guard let messageId, let option = value else { return }
+            if option == "spamblock" {
+                await SearchSettingsFlow.toggleSpamBlock(
+                    chatId: chatId,
+                    messageId: messageId,
+                    context: context
+                )
+            }
+
         default:
             context.logger.warning("Unknown filter action: \(action)")
         }

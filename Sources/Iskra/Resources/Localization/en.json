@@ -147,11 +147,16 @@
   },
   "filters": {
     "menu": {
-      "title": "⚙️ Search filters",
-      "body": "Adjust who you want to see in your feed.",
+      "title": "⚙️ Settings",
+      "body": "Adjust your preferences.",
       "gender": "✨ Interested in: %@",
       "age": "🎂 Age range: %@",
+      "spamBlock": "🔒 Spam-block: %@",
       "done": "Save & Close"
+    },
+    "spamBlock": {
+      "enabled": "ON",
+      "disabled": "OFF"
     },
     "gender": {
       "title": "✨ Who would you like to meet?",
@@ -183,6 +188,14 @@
       "range": "%d-%d y.o."
     },
     "saved": "Filters updated"
+  },
+  "match": {
+    "notification": {
+      "title": "🎉 It's a Match with %@!",
+      "contact": "You can now message them: %@",
+      "openChat": "💬 Open Chat",
+      "spamBlockWarning": "This user has messaging restrictions enabled. They may not be able to reply immediately."
+    }
   },
   "search": {
     "menu": {
