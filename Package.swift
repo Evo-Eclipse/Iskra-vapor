@@ -11,6 +11,8 @@ let package = Package(
     dependencies: [
         // Vapor — A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.115.0"),
+        .package(url: "https://github.com/vapor/fluent.git", from: "4.13.0"),
+        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.12.0"),
 
         // Network
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
@@ -27,6 +29,8 @@ let package = Package(
             name: "Iskra",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio"),
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
