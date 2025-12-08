@@ -20,6 +20,9 @@ struct UpdateContext: Sendable {
 
     /// Shared session storage for state management.
     let sessions: SessionStorage
+
+    /// Admin group chat ID for moderation (optional).
+    let adminChatId: Int64?
 }
 
 // MARK: - Session Convenience Methods

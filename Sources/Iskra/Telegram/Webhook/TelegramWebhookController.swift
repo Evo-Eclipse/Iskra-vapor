@@ -13,12 +13,14 @@ struct TelegramWebhookController: RouteCollection {
     private let client: Client
     private let db: any Database
     private let sessions: SessionStorage
+    private let adminChatId: Int64?
 
-    init(router: UpdateRouter, client: Client, db: any Database, sessions: SessionStorage) {
+    init(router: UpdateRouter, client: Client, db: any Database, sessions: SessionStorage, adminChatId: Int64?) {
         self.router = router
         self.client = client
         self.db = db
         self.sessions = sessions
+        self.adminChatId = adminChatId
     }
 
     func boot(routes: any RoutesBuilder) throws {
@@ -44,7 +46,8 @@ struct TelegramWebhookController: RouteCollection {
             logger: req.logger,
             client: client,
             db: req.db,
-            sessions: sessions
+            sessions: sessions,
+            adminChatId: adminChatId
         )
 
         // Route update — O(1) dispatch

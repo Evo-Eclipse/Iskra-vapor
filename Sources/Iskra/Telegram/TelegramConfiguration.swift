@@ -14,6 +14,9 @@ struct TelegramConfiguration: Sendable {
     /// The bot token from @BotFather.
     let botToken: String
 
+    /// Admin group chat ID for moderation.
+    let adminChatId: Int64?
+
     /// Operation mode: webhook or polling.
     let mode: TelegramBotMode
 
@@ -58,8 +61,12 @@ struct TelegramConfiguration: Sendable {
         let pollingLimit = Environment.get("TELEGRAM_POLLING_LIMIT")
             .flatMap(Int64.init) ?? 100
 
+        let adminChatId = Environment.get("TELEGRAM_ADMIN_CHAT_ID")
+            .flatMap(Int64.init)
+
         return TelegramConfiguration(
             botToken: botToken,
+            adminChatId: adminChatId,
             mode: mode,
             webhookSecretToken: Environment.get("TELEGRAM_WEBHOOK_SECRET"),
             webhookURL: webhookURL,

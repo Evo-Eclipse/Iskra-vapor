@@ -13,6 +13,12 @@ public func configure(_ app: Application) async throws {
     app.storage[TelegramConfigurationKey.self] = telegramConfig
 
     app.logger.info("Starting Telegram bot in \(telegramConfig.mode) mode")
+    
+    if let adminChatId = telegramConfig.adminChatId {
+        app.logger.info("Admin chat ID configured", metadata: ["admin_chat_id": "\(adminChatId)"])
+    } else {
+        app.logger.warning("Admin chat ID not configured - moderation features will be unavailable")
+    }
 
     // Build shared services
     let router = buildUpdateRouter()
@@ -80,7 +86,8 @@ private func configureWebhook(
         router: router,
         client: client,
         db: app.db,
-        sessions: sessions
+        sessions: sessions,
+        adminChatId: config.adminChatId
     )
     try app.register(collection: webhookController)
 

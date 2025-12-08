@@ -111,6 +111,11 @@
       "action": ""
     }
   },
+  "moderation": {
+    "newProfile": "NEW PROFILE FOR REVIEW\n\nUser: @{username}\nCity: {city}\nGoal: {goal}\nLooking for: {pref}\n\nDescription:\n{bio}",
+    "approved": "Your profile is live! 🎉\n\nWelcome to the community. Now go out there and make an impact. ✨",
+    "rejected": "⚠️ We need a quick revision.\n\nThanks for submitting! We found one small issue:\n\nReason: %@\n\nNo worries—just update it and resubmit. You've got this! 🍪"
+  },
   "errors": {
     "generic": "⚠️ Something went wrong. Please try again.",
     "invalidCallback": "Invalid action"

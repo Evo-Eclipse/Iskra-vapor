@@ -151,6 +151,49 @@ extension ProfileFlow {
             await send(text: screen.text, chatId: chatId, context: context)
         }
 
+        // MARK: - Moderation
+
+        /// Sends profile to admin group for review. Returns true if successful.
+        static func sendToModeration(
+            adminChatId: Int64,
+            moderationId: UUID,
+            username: String?,
+            city: String,
+            goal: ProfileGoal,
+            lookingFor: LookingForPreference,
+            bio: String,
+            photoFileId: String,
+            context: UpdateContext
+        ) async -> Bool {
+            let goalLabel = L10n.GoalOption.label(for: goal)
+            let prefLabel = L10n.PreferenceOption.label(for: lookingFor)
+
+            let text = L10n["moderation.newProfile"]
+                .replacingOccurrences(of: "{username}", with: username ?? "unknown")
+                .replacingOccurrences(of: "{city}", with: city)
+                .replacingOccurrences(of: "{goal}", with: goalLabel)
+                .replacingOccurrences(of: "{pref}", with: prefLabel)
+                .replacingOccurrences(of: "{bio}", with: bio)
+
+            // Build approve/reject buttons with moderation ID
+            var kb = KeyboardBuilder(type: .inline)
+            kb.button(text: "✅ Approve", callbackData: "mod:approve:\(moderationId.uuidString)")
+            kb.button(text: "❌ Reject", callbackData: "mod:reject:\(moderationId.uuidString)")
+
+            do {
+                _ = try await context.client.sendPhoto(body: .json(.init(
+                    chat_id: .case1(adminChatId),
+                    photo: .case2(photoFileId),
+                    caption: text,
+                    reply_markup: .InlineKeyboardMarkup(kb.buildInline())
+                )))
+                return true
+            } catch {
+                context.logger.error("Failed to send to moderation: \(error)")
+                return false
+            }
+        }
+
         // MARK: - Telegram Primitives
 
         static func send(text: String, keyboard: Components.Schemas.InlineKeyboardMarkup? = nil, chatId: Int64, context: UpdateContext) async {

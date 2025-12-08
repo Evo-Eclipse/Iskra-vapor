@@ -101,6 +101,8 @@ enum ProfileFlow {
 
         guard let draft = context.session(for: userId).profileDraft,
               let city = draft.city,
+              let goal = draft.goal,
+              let lookingFor = draft.lookingFor,
               let bio = draft.bio,
               let photoFileId = draft.photoFileId
         else {
@@ -110,22 +112,41 @@ enum ProfileFlow {
             return
         }
 
-        // Get user's UUID from database
         do {
+            // 1. Get user's UUID from database
             guard let dbUser = try await context.users.find(telegramId: userId) else {
                 await Presenter.error(chatId: userId, context: context)
                 await Presenter.answerCallback(query: query, context: context)
                 return
             }
 
-            // Create moderation request
-            _ = try await context.moderations.createPending(
+            // 2. Create moderation request
+            guard let moderation = try await context.moderations.createPending(
                 userId: dbUser.id,
                 name: user.username ?? "User \(userId)",
                 description: bio,
                 photoFileId: photoFileId,
                 city: city
-            )
+            ) else {
+                await Presenter.error(chatId: userId, context: context)
+                await Presenter.answerCallback(query: query, context: context)
+                return
+            }
+
+            // 3. Send to admin group for review
+            if let adminChatId = context.adminChatId {
+                _ = await Presenter.sendToModeration(
+                    adminChatId: adminChatId,
+                    moderationId: moderation.id,
+                    username: user.username,
+                    city: city,
+                    goal: goal,
+                    lookingFor: lookingFor,
+                    bio: bio,
+                    photoFileId: photoFileId,
+                    context: context
+                )
+            }
 
             context.sessions.reset(userId: userId)
             await Presenter.submitted(chatId: userId, context: context)
@@ -185,6 +206,10 @@ enum ProfileFlow {
         guard let userId = message.from?.id else { return }
         let bio = text.trimmingCharacters(in: .whitespacesAndNewlines)
 
+        guard bio.count >= 10 else {
+            await Presenter.bioTooShort(chatId: message.chat.id, context: context)
+            return
+        }
         guard bio.count <= 600 else {
             await Presenter.bioTooLong(chatId: message.chat.id, context: context)
             return

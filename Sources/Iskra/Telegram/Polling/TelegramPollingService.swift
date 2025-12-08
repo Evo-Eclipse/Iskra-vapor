@@ -73,7 +73,8 @@ struct TelegramPollingService: Sendable {
                         logger: logger,
                         client: client,
                         db: db,
-                        sessions: sessions
+                        sessions: sessions,
+                        adminChatId: config.adminChatId
                     )
                     await router.route(update, context: context)
                 }
