@@ -36,6 +36,9 @@ public func configure(_ app: Application) async throws {
         }
     }
 
+    // Load localization
+    L10n.load()
+
     // Register routes
     try routes(app)
 }
@@ -46,10 +49,14 @@ public func configure(_ app: Application) async throws {
 /// This router is shared between webhook and polling modes.
 private func buildUpdateRouter() -> UpdateRouter {
     UpdateRouterBuilder()
+        // Commands
         .onCommand("start", handler: StartCommandHandler())
         .onCommand("help", handler: HelpCommandHandler())
+        // Callbacks
+        .onCallback(prefix: "onboarding", handler: OnboardingCallbackHandler())
         .onCallback(prefix: "action", handler: ActionCallbackHandler())
-        .onText(EchoTextHandler())
+        // Messages
+        .onText(OnboardingTextHandler())
         .onSticker(EchoStickerHandler())
         .build()
 }
