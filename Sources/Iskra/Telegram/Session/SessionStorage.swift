@@ -57,6 +57,11 @@ final class SessionStorage: Sendable {
 
     /// Updates session for user, creating if not exists.
     /// Activity timestamp is automatically updated.
+    ///
+    /// - Warning: The transform closure executes while holding the lock.
+    ///   Long-running operations will block all other session access.
+    ///   Keep transforms fast and synchronous.
+    ///
     /// - Parameters:
     ///   - userId: Telegram user ID
     ///   - transform: Mutation closure applied to session
@@ -71,9 +76,14 @@ final class SessionStorage: Sendable {
 
     /// Updates session and returns a result.
     /// Activity timestamp is automatically updated.
+    ///
+    /// - Warning: The transform closure executes while holding the lock.
+    ///   Long-running operations will block all other session access.
+    ///   Keep transforms fast and synchronous.
+    ///
     /// - Parameters:
     ///   - userId: Telegram user ID
-    ///   - transform: Mutation closure returning a value
+    ///   - transform: Mutation closure returning a value (keep it fast)
     /// - Returns: Result from transform closure
     func updateReturning<T>(userId: Int64, _ transform: (inout UserSession) -> T) -> T {
         sessions.withLockedValue { dict in
