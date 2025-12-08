@@ -10,10 +10,12 @@ import Vapor
 struct TelegramWebhookController: RouteCollection {
     private let router: UpdateRouter
     private let botToken: String
+    private let sessions: SessionStorage
 
-    init(router: UpdateRouter, botToken: String) {
+    init(router: UpdateRouter, botToken: String, sessions: SessionStorage) {
         self.router = router
         self.botToken = botToken
+        self.sessions = sessions
     }
 
     func boot(routes: any RoutesBuilder) throws {
@@ -37,7 +39,8 @@ struct TelegramWebhookController: RouteCollection {
         let context = UpdateContext(
             updateId: update.update_id,
             logger: req.logger,
-            botToken: botToken
+            botToken: botToken,
+            sessions: sessions
         )
 
         // Route update — O(1) dispatch

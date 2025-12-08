@@ -8,6 +8,7 @@ struct TelegramPollingService: Sendable {
     private let config: TelegramConfiguration
     private let router: UpdateRouter
     private let logger: Logger
+    private let sessions: SessionStorage
 
     /// Polling timeout in seconds (Telegram supports 0-50).
     private let timeout: Int64
@@ -19,12 +20,14 @@ struct TelegramPollingService: Sendable {
         config: TelegramConfiguration,
         router: UpdateRouter,
         logger: Logger,
+        sessions: SessionStorage,
         timeout: Int64 = 30,
         limit: Int64 = 100
     ) {
         self.config = config
         self.router = router
         self.logger = logger
+        self.sessions = sessions
         self.timeout = min(max(timeout, 0), 50) // Clamp to 0-50
         self.limit = min(max(limit, 1), 100)    // Clamp to 1-100
     }
@@ -63,7 +66,8 @@ struct TelegramPollingService: Sendable {
                     let context = UpdateContext(
                         updateId: update.update_id,
                         logger: logger,
-                        botToken: config.botToken
+                        botToken: config.botToken,
+                        sessions: sessions
                     )
                     await router.route(update, context: context)
                 }
