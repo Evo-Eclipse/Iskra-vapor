@@ -38,6 +38,9 @@ let package = Package(
                 .product(name: "OpenAPIAsyncHTTPClient", package: "swift-openapi-async-http-client"),
                 .product(name: "OpenAPIVapor", package: "swift-openapi-vapor"),
             ],
+            resources: [
+                .process("Resources")
+            ],
             swiftSettings: swiftSettings,
             plugins: [
                 .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator"),
