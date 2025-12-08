@@ -1,0 +1,56 @@
+{
+  "onboarding": {
+    "welcome": {
+      "title": "✨ Welcome to Iskra!",
+      "body": "Find meaningful connections and spark something special with people near you.\n\nReady to start meeting new people?",
+      "action": "Get Started"
+    },
+    "welcomeBack": {
+      "title": "👋 Welcome back!",
+      "body": "Good to see you again. Use the menu to navigate."
+    },
+    "usernameRequired": {
+      "title": "⚠️ Username Required",
+      "body": "To use Iskra, you need a Telegram username.\n\nGo to Settings → Edit Profile → Username, then tap /start again."
+    },
+    "birthdate": {
+      "title": "📅 Enter your date of birth",
+      "hint": "Format: DD.MM.YYYY (e.g., 15.03.2000)",
+      "warning": "⚠️ This cannot be changed later.",
+      "errorFormat": "Invalid date format. Please use DD.MM.YYYY",
+      "errorUnderage": "Sorry, Iskra is only available to users 16 and older.\n\nCome back when you turn 16! 🎂"
+    },
+    "gender": {
+      "title": "Select your gender",
+      "warning": "⚠️ This cannot be changed later.",
+      "options": {
+        "male": "Male",
+        "female": "Female"
+      }
+    },
+    "complete": {
+      "title": "🎉 Registration Complete!",
+      "body": "Welcome to the bright world of bright people.\n\nNow let's create your profile and start meeting amazing humans.",
+      "action": "Create Profile"
+    },
+    "sessionExpired": {
+      "title": "⏰ Session Expired",
+      "body": "Your session has timed out. Tap /start to begin again."
+    },
+    "learnMore": {
+      "title": "🍪 About Iskra",
+      "body": "Iskra is a dating bot that helps you find meaningful connections.\n\n• Create a profile with photos and bio\n• Set your preferences and filters\n• Browse profiles and send likes\n• Match with people who like you back\n• Start conversations securely\n\nYour privacy matters. We never share your data.",
+      "action": "← Back"
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "invalidCallback": "Invalid action"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "back": "← Back",
+    "confirm": "Confirm",
+    "skip": "Skip"
+  }
+}
