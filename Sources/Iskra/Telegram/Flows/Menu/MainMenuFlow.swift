@@ -93,7 +93,7 @@ extension MainMenuFlow {
             }
         }
         
-        /// Shows user's profile with edit option.
+        /// Shows user's profile with edit and back options.
         static func showProfile(
             chatId: Int64,
             profile: ProfileDTO,
@@ -104,6 +104,7 @@ extension MainMenuFlow {
             
             var kb = KeyboardBuilder(type: .inline)
             kb.button(text: L10n["menu.profile.edit"], callbackData: "profile:edit:menu")
+            kb.button(text: L10n["common.back"], callbackData: "profile:back")
             
             do {
                 _ = try await context.client.sendPhoto(body: .json(.init(

@@ -162,24 +162,39 @@ enum ProfileFlow {
         let telegramId = query.from.id
         let session = context.session(for: telegramId)
 
-        // If no draft exists, try to load from rejected moderation
+        // If no draft exists, try to load from approved profile or rejected moderation
         if session.profileDraft == nil {
             do {
-                if let user = try await context.users.find(telegramId: telegramId),
-                   let rejected = try await context.moderations.findLatestRejected(userId: user.id) {
-                    context.updateSession(for: telegramId) { session in
-                        session.profileDraft = ProfileDraft(
-                            city: rejected.city,
-                            goal: .both,  // TODO: store goal in moderation
-                            lookingFor: .any,  // TODO: store lookingFor in moderation
-                            bio: rejected.description,
-                            photoFileId: rejected.photoFileId
-                        )
-                        session.state = .profile(.previewing)
+                if let user = try await context.users.find(telegramId: telegramId) {
+                    // First try to load from approved profile
+                    if let profile = try await context.profiles.find(userId: user.id) {
+                        context.updateSession(for: telegramId) { session in
+                            session.profileDraft = ProfileDraft(
+                                city: profile.city,
+                                goal: .both,  // Default, user can change
+                                lookingFor: .any,  // Default, user can change
+                                bio: profile.description,
+                                photoFileId: profile.photoFileId
+                            )
+                            session.state = .profile(.editing(.city))  // Mark as editing mode
+                        }
+                    }
+                    // Otherwise try rejected moderation
+                    else if let rejected = try await context.moderations.findLatestRejected(userId: user.id) {
+                        context.updateSession(for: telegramId) { session in
+                            session.profileDraft = ProfileDraft(
+                                city: rejected.city,
+                                goal: .both,
+                                lookingFor: .any,
+                                bio: rejected.description,
+                                photoFileId: rejected.photoFileId
+                            )
+                            session.state = .profile(.previewing)
+                        }
                     }
                 }
             } catch {
-                context.logger.error("Failed to load rejected moderation: \(error)")
+                context.logger.error("Failed to load profile for editing: \(error)")
             }
         }
 
@@ -189,9 +204,34 @@ enum ProfileFlow {
 
     static func backToPreview(query: Components.Schemas.CallbackQuery, context: UpdateContext) async {
         let userId = query.from.id
-        context.setState(.profile(.previewing), for: userId)
+
+        do {
+            if let user = try await context.users.find(telegramId: userId),
+               let profile = try await context.profiles.find(userId: user.id) {
+                // User has approved profile - show it with just edit button
+                context.sessions.reset(userId: userId)
+                await MainMenuFlow.Presenter.showProfile(
+                    chatId: userId,
+                    profile: profile,
+                    user: user,
+                    context: context
+                )
+                await Presenter.answerCallback(query: query, context: context)
+                return
+            }
+        } catch {
+            context.logger.error("Failed to load profile: \(error)")
+        }
+
+        // User is creating new profile - show preview if complete
         let draft = context.session(for: userId).profileDraft
-        await Presenter.preview(chatId: userId, draft: draft, context: context)
+        if let draft, draft.isComplete {
+            context.setState(.profile(.previewing), for: userId)
+            await Presenter.preview(chatId: userId, draft: draft, context: context)
+        } else {
+            context.sessions.reset(userId: userId)
+        }
+
         await Presenter.answerCallback(query: query, context: context)
     }
 
