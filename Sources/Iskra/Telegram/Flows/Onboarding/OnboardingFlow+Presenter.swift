@@ -8,74 +8,65 @@ extension OnboardingFlow {
         // MARK: - Screens
 
         static func intro(chatId: Int64, context: UpdateContext) async {
-            let text = "\(L10n.Onboarding.Welcome.title)\n\n\(L10n.Onboarding.Welcome.body)"
+            let screen = L10n.Screen.welcome
             var kb = KeyboardBuilder(type: .inline)
-            kb.button(text: L10n.Onboarding.Welcome.action, callbackData: "onboarding:create")
-            await send(text: text, keyboard: kb.buildInline(), chatId: chatId, context: context)
+            kb.button(text: screen.action, callbackData: "onboarding:create")
+            await send(text: screen.text, keyboard: kb.buildInline(), chatId: chatId, context: context)
         }
 
         static func learnMore(chatId: Int64, context: UpdateContext) async {
-            let text = "\(L10n.Onboarding.LearnMore.title)\n\n\(L10n.Onboarding.LearnMore.body)"
+            let screen = L10n.Screen.learnMore
             var kb = KeyboardBuilder(type: .inline)
-            kb.button(text: L10n.Onboarding.LearnMore.action, callbackData: "onboarding:back")
-            await send(text: text, keyboard: kb.buildInline(), chatId: chatId, context: context)
+            kb.button(text: screen.action, callbackData: "onboarding:back")
+            await send(text: screen.text, keyboard: kb.buildInline(), chatId: chatId, context: context)
         }
 
         static func welcomeBack(chatId: Int64, user _: UserDTO, context: UpdateContext) async {
-            let text = "\(L10n.Onboarding.WelcomeBack.title)\n\n\(L10n.Onboarding.WelcomeBack.body)"
-            await send(text: text, chatId: chatId, context: context)
+            await send(text: L10n.Screen.welcomeBack.text, chatId: chatId, context: context)
         }
 
         static func usernameRequired(chatId: Int64, context: UpdateContext) async {
-            let text = "\(L10n.Onboarding.UsernameRequired.title)\n\n\(L10n.Onboarding.UsernameRequired.body)"
-            await send(text: text, chatId: chatId, context: context)
+            await send(text: L10n.Screen.usernameRequired.text, chatId: chatId, context: context)
         }
 
         // MARK: - Birthdate Step
 
         static func birthdateRequest(chatId: Int64, context: UpdateContext) async {
-            let text = """
-            \(L10n.Onboarding.Birthdate.title)
-
-            \(L10n.Onboarding.Birthdate.hint)
-
-            \(L10n.Onboarding.Birthdate.warning)
-            """
-            await send(text: text, chatId: chatId, context: context)
+            await send(text: L10n.Prompt.birthdate.text, chatId: chatId, context: context)
         }
 
         static func invalidDateFormat(chatId: Int64, context: UpdateContext) async {
-            await send(text: L10n.Onboarding.Birthdate.errorFormat, chatId: chatId, context: context)
+            await send(text: L10n.Errors.format, chatId: chatId, context: context)
         }
 
         static func underage(chatId: Int64, context: UpdateContext) async {
-            await send(text: L10n.Onboarding.Birthdate.errorUnderage, chatId: chatId, context: context)
+            await send(text: L10n.Errors.underage, chatId: chatId, context: context)
         }
 
         // MARK: - Gender Step
 
         static func genderSelection(chatId: Int64, context: UpdateContext) async {
-            let text = "\(L10n.Onboarding.Gender.title)\n\n\(L10n.Onboarding.Gender.warning)"
+            let prompt = L10n.Prompt.gender
+            let text = "\(prompt.title)\n\n\(prompt.warning)"
             var kb = KeyboardBuilder(type: .inline)
-            kb.button(text: L10n.Onboarding.Gender.male, callbackData: "onboarding:gender:male")
-            kb.button(text: L10n.Onboarding.Gender.female, callbackData: "onboarding:gender:female")
+            kb.button(text: L10n.Gender.male, callbackData: "onboarding:gender:male")
+            kb.button(text: L10n.Gender.female, callbackData: "onboarding:gender:female")
             await send(text: text, keyboard: kb.buildInline(), chatId: chatId, context: context)
         }
 
         // MARK: - Completion
 
         static func complete(chatId: Int64, user _: UserDTO, context: UpdateContext) async {
-            let text = "\(L10n.Onboarding.Complete.title)\n\n\(L10n.Onboarding.Complete.body)"
+            let screen = L10n.Screen.complete
             var kb = KeyboardBuilder(type: .inline)
-            kb.button(text: L10n.Onboarding.Complete.action, callbackData: "profile:create")
-            await send(text: text, keyboard: kb.buildInline(), chatId: chatId, context: context)
+            kb.button(text: screen.action, callbackData: "profile:create")
+            await send(text: screen.text, keyboard: kb.buildInline(), chatId: chatId, context: context)
         }
 
         // MARK: - Errors
 
         static func sessionExpired(chatId: Int64, context: UpdateContext) async {
-            let text = "\(L10n.Onboarding.SessionExpired.title)\n\n\(L10n.Onboarding.SessionExpired.body)"
-            await send(text: text, chatId: chatId, context: context)
+            await send(text: L10n.Screen.sessionExpired.text, chatId: chatId, context: context)
         }
 
         static func error(chatId: Int64, context: UpdateContext) async {
@@ -89,7 +80,7 @@ extension OnboardingFlow {
                 _ = try await context.client.sendMessage(body: .json(.init(
                     chat_id: .case1(chatId),
                     text: text,
-                    reply_markup: keyboard.map { .InlineKeyboardMarkup($0) },
+                    reply_markup: keyboard.map { .InlineKeyboardMarkup($0) }
                 )))
             } catch {
                 context.logger.error("Failed to send message: \(error)")

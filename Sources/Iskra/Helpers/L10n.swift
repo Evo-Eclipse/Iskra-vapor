@@ -18,8 +18,7 @@ enum L10n {
               let data = try? Data(contentsOf: url),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
-            print("Warning: Failed to load localization for '\(locale)' from bundle")
-            return
+            fatalError("Invalid locale: unable to load \(locale).json")
         }
 
         strings = json
@@ -45,68 +44,71 @@ enum L10n {
     static subscript(_ keyPath: String) -> String { string(keyPath) }
 }
 
-// MARK: - Convenience Accessors
+// MARK: - Screen (Standard UI Block)
 
 extension L10n {
-    enum Onboarding {
-        enum Welcome {
-            static var title: String { L10n["onboarding.welcome.title"] }
-            static var body: String { L10n["onboarding.welcome.body"] }
-            static var action: String { L10n["onboarding.welcome.action"] }
+    /// Represents a standard UI screen with title, body, and optional action button.
+    /// JSON structure: { "title": "...", "body": "...", "action": "..." }
+    struct Screen {
+        let title: String
+        let body: String
+        let action: String
+
+        init(_ path: String) {
+            self.title = L10n["\(path).title"]
+            self.body = L10n["\(path).body"]
+            self.action = L10n["\(path).action"]
         }
 
-        enum WelcomeBack {
-            static var title: String { L10n["onboarding.welcomeBack.title"] }
-            static var body: String { L10n["onboarding.welcomeBack.body"] }
-        }
-
-        enum UsernameRequired {
-            static var title: String { L10n["onboarding.usernameRequired.title"] }
-            static var body: String { L10n["onboarding.usernameRequired.body"] }
-        }
-
-        enum Birthdate {
-            static var title: String { L10n["onboarding.birthdate.title"] }
-            static var hint: String { L10n["onboarding.birthdate.hint"] }
-            static var warning: String { L10n["onboarding.birthdate.warning"] }
-            static var errorFormat: String { L10n["onboarding.birthdate.errorFormat"] }
-            static var errorUnderage: String { L10n["onboarding.birthdate.errorUnderage"] }
-        }
-
-        enum Gender {
-            static var title: String { L10n["onboarding.gender.title"] }
-            static var warning: String { L10n["onboarding.gender.warning"] }
-            static var male: String { L10n["onboarding.gender.options.male"] }
-            static var female: String { L10n["onboarding.gender.options.female"] }
-        }
-
-        enum Complete {
-            static var title: String { L10n["onboarding.complete.title"] }
-            static var body: String { L10n["onboarding.complete.body"] }
-            static var action: String { L10n["onboarding.complete.action"] }
-        }
-
-        enum SessionExpired {
-            static var title: String { L10n["onboarding.sessionExpired.title"] }
-            static var body: String { L10n["onboarding.sessionExpired.body"] }
-        }
-
-        enum LearnMore {
-            static var title: String { L10n["onboarding.learnMore.title"] }
-            static var body: String { L10n["onboarding.learnMore.body"] }
-            static var action: String { L10n["onboarding.learnMore.action"] }
-        }
+        /// Formatted text: title + newline + body
+        var text: String { "\(title)\n\n\(body)" }
     }
 
+    /// Represents a prompt with title, hint, and warning.
+    /// JSON structure: { "title": "...", "hint": "...", "warning": "..." }
+    struct Prompt {
+        let title: String
+        let hint: String
+        let warning: String
+
+        init(_ path: String) {
+            self.title = L10n["\(path).title"]
+            self.hint = L10n["\(path).hint"]
+            self.warning = L10n["\(path).warning"]
+        }
+
+        var text: String { "\(title)\n\n\(hint)\n\n\(warning)" }
+    }
+}
+
+// MARK: - Predefined Screens
+
+extension L10n.Screen {
+    static let welcome = L10n.Screen("onboarding.welcome")
+    static let welcomeBack = L10n.Screen("onboarding.welcomeBack")
+    static let usernameRequired = L10n.Screen("onboarding.usernameRequired")
+    static let complete = L10n.Screen("onboarding.complete")
+    static let sessionExpired = L10n.Screen("onboarding.sessionExpired")
+    static let learnMore = L10n.Screen("onboarding.learnMore")
+}
+
+extension L10n.Prompt {
+    static let birthdate = L10n.Prompt("onboarding.birthdate")
+    static let gender = L10n.Prompt("onboarding.gender")
+}
+
+// MARK: - Errors & Common
+
+extension L10n {
     enum Errors {
         static var generic: String { L10n["errors.generic"] }
         static var invalidCallback: String { L10n["errors.invalidCallback"] }
+        static var format: String { L10n["onboarding.birthdate.errorFormat"] }
+        static var underage: String { L10n["onboarding.birthdate.errorUnderage"] }
     }
 
-    enum Common {
-        static var cancel: String { L10n["common.cancel"] }
-        static var back: String { L10n["common.back"] }
-        static var confirm: String { L10n["common.confirm"] }
-        static var skip: String { L10n["common.skip"] }
+    enum Gender {
+        static var male: String { L10n["onboarding.gender.options.male"] }
+        static var female: String { L10n["onboarding.gender.options.female"] }
     }
 }

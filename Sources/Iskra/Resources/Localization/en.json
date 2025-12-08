@@ -7,11 +7,13 @@
     },
     "welcomeBack": {
       "title": "👋 Welcome back!",
-      "body": "Good to see you again. Use the menu to navigate."
+      "body": "Good to see you again. Use the menu to navigate.",
+      "action": ""
     },
     "usernameRequired": {
-      "title": "⚠️ Username Required",
-      "body": "To use Iskra, you need a Telegram username.\n\nGo to Settings → Edit Profile → Username, then tap /start again."
+      "title": "📛 Username Required",
+      "body": "To use Iskra, you need a Telegram username.\n\nGo to Settings → Edit Profile → Username, then tap /start again.",
+      "action": ""
     },
     "birthdate": {
       "title": "📅 Enter your date of birth",
@@ -22,11 +24,13 @@
     },
     "gender": {
       "title": "Select your gender",
+      "hint": "",
       "warning": "⚠️ This cannot be changed later.",
       "options": {
         "male": "Male",
         "female": "Female"
-      }
+      },
+      "action": ""
     },
     "complete": {
       "title": "🎉 Registration Complete!",
@@ -35,10 +39,11 @@
     },
     "sessionExpired": {
       "title": "⏰ Session Expired",
-      "body": "Your session has timed out. Tap /start to begin again."
+      "body": "Your session has timed out. Tap /start to begin again.",
+      "action": ""
     },
     "learnMore": {
-      "title": "🍪 About Iskra",
+      "title": "ℹ️ About Iskra",
       "body": "Iskra is a dating bot that helps you find meaningful connections.\n\n• Create a profile with photos and bio\n• Set your preferences and filters\n• Browse profiles and send likes\n• Match with people who like you back\n• Start conversations securely\n\nYour privacy matters. We never share your data.",
       "action": "← Back"
     }
