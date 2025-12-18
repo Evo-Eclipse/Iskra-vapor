@@ -1,3 +1,4 @@
+import Fluent
 import Vapor
 
 /// Controller responsible for receiving Telegram Bot API webhook updates.
@@ -9,11 +10,15 @@ import Vapor
 /// - Update routing: O(1) type dispatch + O(1) command/callback lookup
 struct TelegramWebhookController: RouteCollection {
     private let router: UpdateRouter
-    private let botToken: String
+    private let client: Client
+    private let db: any Database
+    private let sessions: SessionStorage
 
-    init(router: UpdateRouter, botToken: String) {
+    init(router: UpdateRouter, client: Client, db: any Database, sessions: SessionStorage) {
         self.router = router
-        self.botToken = botToken
+        self.client = client
+        self.db = db
+        self.sessions = sessions
     }
 
     func boot(routes: any RoutesBuilder) throws {
@@ -37,7 +42,9 @@ struct TelegramWebhookController: RouteCollection {
         let context = UpdateContext(
             updateId: update.update_id,
             logger: req.logger,
-            botToken: botToken
+            client: client,
+            db: req.db,
+            sessions: sessions
         )
 
         // Route update — O(1) dispatch

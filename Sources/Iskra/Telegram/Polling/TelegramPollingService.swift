@@ -1,3 +1,4 @@
+import Fluent
 import Vapor
 
 /// Long polling service for receiving Telegram updates.
@@ -8,6 +9,9 @@ struct TelegramPollingService: Sendable {
     private let config: TelegramConfiguration
     private let router: UpdateRouter
     private let logger: Logger
+    private let client: Client
+    private let db: any Database
+    private let sessions: SessionStorage
 
     /// Polling timeout in seconds (Telegram supports 0-50).
     private let timeout: Int64
@@ -19,12 +23,18 @@ struct TelegramPollingService: Sendable {
         config: TelegramConfiguration,
         router: UpdateRouter,
         logger: Logger,
+        client: Client,
+        db: any Database,
+        sessions: SessionStorage,
         timeout: Int64 = 30,
         limit: Int64 = 100
     ) {
         self.config = config
         self.router = router
         self.logger = logger
+        self.client = client
+        self.db = db
+        self.sessions = sessions
         self.timeout = min(max(timeout, 0), 50) // Clamp to 0-50
         self.limit = min(max(limit, 1), 100)    // Clamp to 1-100
     }
@@ -41,17 +51,15 @@ struct TelegramPollingService: Sendable {
     // MARK: - Polling Loop
 
     private func pollingLoop() async {
-        let client = buildClient()
-
         // Delete webhook first to enable polling mode
-        await deleteWebhookIfNeeded(client: client)
+        await deleteWebhookIfNeeded()
 
         // Local mutable state — no synchronization needed
         var lastUpdateId: Int64 = 0
 
         while !Task.isCancelled {
             do {
-                let updates = try await fetchUpdates(client: client, offset: lastUpdateId)
+                let updates = try await fetchUpdates(offset: lastUpdateId)
 
                 for update in updates {
                     // Track last update ID for offset
@@ -63,7 +71,9 @@ struct TelegramPollingService: Sendable {
                     let context = UpdateContext(
                         updateId: update.update_id,
                         logger: logger,
-                        botToken: config.botToken
+                        client: client,
+                        db: db,
+                        sessions: sessions
                     )
                     await router.route(update, context: context)
                 }
@@ -81,14 +91,14 @@ struct TelegramPollingService: Sendable {
 
     // MARK: - API Calls
 
-    private func fetchUpdates(client: Client, offset: Int64) async throws -> [Components.Schemas.Update] {
+    private func fetchUpdates(offset: Int64) async throws -> [Components.Schemas.Update] {
         let response = try await client.getUpdates(
             body: .json(.init(offset: offset > 0 ? offset : nil, limit: limit, timeout: timeout))
         )
         return try response.extract(logger: logger).get()
     }
 
-    private func deleteWebhookIfNeeded(client: Client) async {
+    private func deleteWebhookIfNeeded() async {
         logger.info("Deleting Telegram webhook to enable long polling")
         do {
             let response = try await client.deleteWebhook(body: .json(.init(drop_pending_updates: false)))
@@ -98,9 +108,5 @@ struct TelegramPollingService: Sendable {
         } catch {
             logger.error("Failed to delete Telegram webhook", metadata: ["error": "\(error)"])
         }
-    }
-
-    private func buildClient() -> Client {
-        TelegramClientFactory.makeClient(botToken: config.botToken)
     }
 }

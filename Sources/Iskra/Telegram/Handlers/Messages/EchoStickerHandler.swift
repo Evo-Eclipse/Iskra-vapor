@@ -15,9 +15,8 @@ struct EchoStickerHandler: MediaHandler {
         )
 
         // Echo sticker back
-        let client = TelegramClientFactory.makeClient(botToken: context.botToken)
         do {
-            _ = try await client.sendSticker(body: .json(.init(
+            _ = try await context.client.sendSticker(body: .json(.init(
                 chat_id: .case1(message.chat.id),
                 sticker: .case2(sticker.file_id)
             )))

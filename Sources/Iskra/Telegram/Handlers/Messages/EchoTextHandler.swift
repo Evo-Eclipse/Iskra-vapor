@@ -14,9 +14,8 @@ struct EchoTextHandler: TextMessageHandler {
         )
 
         // Echo message back
-        let client = TelegramClientFactory.makeClient(botToken: context.botToken)
         do {
-            _ = try await client.sendMessage(body: .json(.init(
+            _ = try await context.client.sendMessage(body: .json(.init(
                 chat_id: .case1(message.chat.id),
                 text: text
             )))
