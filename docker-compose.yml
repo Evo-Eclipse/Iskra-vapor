@@ -11,11 +11,28 @@
 #   Build images: docker compose build
 #      Start app: docker compose up app
 #       Stop all: docker compose down
+#      Run migrations: docker compose run --rm migrate
+#       Revert: docker compose run --rm revert
 #
 
 x-shared_environment: &shared_environment
   LOG_LEVEL: ${LOG_LEVEL:-debug}
   
+  TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+  TELEGRAM_ADMIN_CHAT_ID: ${TELEGRAM_ADMIN_CHAT_ID}
+  TELEGRAM_BOT_MODE: ${TELEGRAM_BOT_MODE:-polling}
+  TELEGRAM_WEBHOOK_URL: ${TELEGRAM_WEBHOOK_URL}
+  TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET}
+  TELEGRAM_WEBHOOK_PORT: ${TELEGRAM_WEBHOOK_PORT:-8080}
+  TELEGRAM_POLLING_TIMEOUT: ${TELEGRAM_POLLING_TIMEOUT:-30}
+  TELEGRAM_POLLING_LIMIT: ${TELEGRAM_POLLING_LIMIT:-100}
+
+  DATABASE_HOST: ${DATABASE_HOST:-postgres}
+  DATABASE_PORT: ${DATABASE_PORT:-5432}
+  DATABASE_NAME: ${DATABASE_NAME:-iskra}
+  DATABASE_USERNAME: ${DATABASE_USERNAME:-iskra}
+  DATABASE_PASSWORD: ${DATABASE_PASSWORD:-iskra}
+
 services:
   app:
     image: iskra:latest
@@ -23,7 +40,55 @@ services:
       context: .
     environment:
       <<: *shared_environment
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - '8080:8080'
     # user: '0' # uncomment to run as root for testing purposes even though Dockerfile defines 'vapor' user.
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
+
+  migrate:
+    image: iskra:latest
+    build:
+      context: .
+    environment:
+      <<: *shared_environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["migrate", "--yes"]
+    deploy:
+      replicas: 0
+
+  revert:
+    image: iskra:latest
+    build:
+      context: .
+    environment:
+      <<: *shared_environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["migrate", "--revert", "--yes"]
+    deploy:
+      replicas: 0
+
+  postgres:
+    image: postgres:18.1
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-iskra}
+      POSTGRES_USER: ${DATABASE_USERNAME:-iskra}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-iskra}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-iskra}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
