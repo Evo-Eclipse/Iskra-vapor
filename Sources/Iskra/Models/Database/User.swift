@@ -33,11 +33,8 @@ final class User: Model, @unchecked Sendable {
 
     // MARK: - Relationships
 
-    // Note: Profile uses user_id as its primary key (1-to-1), so no @Child relationship.
-    // Fetch profile via ProfileRepository.find(userId:) instead.
-
-    @OptionalChild(for: \.$user)
-    var filter: Filter?
+    // Note: Profile and Filter use user_id as their primary key (1-to-1),
+    // so no @Child relationships. Fetch via repositories instead.
 
     @Children(for: \.$user)
     var moderations: [Moderation]

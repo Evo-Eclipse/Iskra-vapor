@@ -1,3 +1,5 @@
+import Foundation
+
 /// Hierarchical Finite State Machine for Telegram bot conversations.
 ///
 /// Top-level states represent major user flows. Substates (associated values)
@@ -19,6 +21,9 @@ enum BotState: Sendable, Equatable {
 
     /// Search filter configuration.
     case settings(SettingsStep)
+
+    /// Active search/browsing flow.
+    case search(SearchStep)
 }
 
 // MARK: - Onboarding Steps
@@ -73,6 +78,26 @@ enum ProfileField: String, Sendable, Equatable {
 
 /// Steps within settings/filter configuration.
 enum SettingsStep: Sendable, Equatable {
-    /// Configuring search filters.
+    /// Configuring search filters (menu).
     case filters
+
+    /// Awaiting custom age range input.
+    case filtersAgeInput
+}
+
+// MARK: - Search Steps
+
+/// Steps within search/browsing flow.
+enum SearchStep: Sendable, Equatable {
+    /// Actively browsing profiles.
+    case browsing
+
+    /// Viewing incoming likes/messages.
+    case viewingIncoming
+
+    /// No more profiles available.
+    case noProfiles
+
+    /// Awaiting message text for envelope.
+    case composingMessage(targetId: UUID)
 }

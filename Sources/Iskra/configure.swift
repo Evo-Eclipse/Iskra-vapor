@@ -58,11 +58,15 @@ private func buildUpdateRouter() -> UpdateRouter {
         // Commands
         .onCommand("start", handler: StartCommandHandler())
         .onCommand("help", handler: HelpCommandHandler())
+        .onCommand("filters", handler: FiltersCommandHandler())
+        .onCommand("search", handler: SearchCommandHandler())
         // Callbacks
         .onCallback(prefix: "onboarding", handler: OnboardingCallbackHandler())
         .onCallback(prefix: "profile", handler: ProfileCallbackHandler())
         .onCallback(prefix: "action", handler: ActionCallbackHandler())
         .onCallback(prefix: "mod", handler: ModerationCallbackHandler())
+        .onCallback(prefix: "filter", handler: FiltersCallbackHandler())
+        .onCallback(prefix: "search", handler: SearchCallbackHandler())
         // Messages
         .onText(FlowTextHandler())
         .onPhoto(FlowPhotoHandler())

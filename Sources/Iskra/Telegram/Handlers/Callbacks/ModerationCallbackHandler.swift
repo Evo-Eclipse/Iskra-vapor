@@ -230,10 +230,16 @@ struct ModerationCallbackHandler: CallbackHandler {
 
     private func notifyUserApproved(telegramId: Int64, context: UpdateContext) async {
         let text = L10n["moderation.approved"]
+
+        // Build "Start Surfing" button so user can start browsing
+        var kb = KeyboardBuilder(type: .inline)
+        kb.button(text: L10n["search.menu.startSurfing"], callbackData: "search:start")
+
         do {
             _ = try await context.client.sendMessage(body: .json(.init(
                 chat_id: .case1(telegramId),
-                text: text
+                text: text,
+                reply_markup: .InlineKeyboardMarkup(kb.buildInline())
             )))
         } catch {
             context.logger.error("Failed to notify user of approval: \(error)")

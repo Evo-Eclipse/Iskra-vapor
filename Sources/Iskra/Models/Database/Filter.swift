@@ -6,12 +6,10 @@ import Foundation
 final class Filter: Model, @unchecked Sendable {
     static let schema = "filters"
 
-    /// Uses user_id as primary key (1-to-1 relationship)
+    /// Uses user_id as primary key (1-to-1 relationship).
+    /// No separate @Parent needed since id IS the foreign key.
     @ID(custom: .userId, generatedBy: .user)
     var id: UUID?
-
-    @Parent(key: .userId)
-    var user: User
 
     @Field(key: .targetGenders)
     var targetGenders: [Gender]
@@ -34,10 +32,9 @@ final class Filter: Model, @unchecked Sendable {
         targetGenders: [Gender],
         ageMin: Int16,
         ageMax: Int16,
-        lookingFor: [LookingFor],
+        lookingFor: [LookingFor]
     ) {
-        id = userId
-        $user.id = userId
+        self.id = userId
         self.targetGenders = targetGenders
         self.ageMin = ageMin
         self.ageMax = ageMax

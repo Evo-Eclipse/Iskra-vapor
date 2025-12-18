@@ -145,6 +145,117 @@
       }
     }
   },
+  "filters": {
+    "menu": {
+      "title": "⚙️ Settings",
+      "body": "Adjust your preferences.",
+      "gender": "✨ Interested in: %@",
+      "age": "🎂 Age range: %@",
+      "spamBlock": "🔒 Spam-block: %@",
+      "done": "Save & Close"
+    },
+    "spamBlock": {
+      "enabled": "ON",
+      "disabled": "OFF"
+    },
+    "gender": {
+      "title": "✨ Who would you like to meet?",
+      "own": "My gender",
+      "opposite": "Opposite gender",
+      "any": "Everyone"
+    },
+    "age": {
+      "title": "🎂 Age preference",
+      "hint": "Select relative to your age.",
+      "peers": "Peers (Same age)",
+      "bitOlder": "Slightly older (up to +3y)",
+      "older": "Older (up to +5y)",
+      "bitYounger": "Slightly younger (up to -3y)",
+      "younger": "Younger (up to -5y)",
+      "any": "All ages",
+      "custom": "Custom range..."
+    },
+    "ageCustom": {
+      "title": "Set custom age range",
+      "hint": "Example: 20-28",
+      "errorFormat": "Please use format: min-max (e.g., 20-28)",
+      "errorRange": "Age allows from 16 to 99"
+    },
+    "labels": {
+      "own": "My gender",
+      "opposite": "Opposite gender",
+      "any": "Any",
+      "range": "%d-%d y.o."
+    },
+    "saved": "Filters updated"
+  },
+  "match": {
+    "notification": {
+      "title": "🎉 It's a Match with %@!",
+      "contact": "You can now message them: %@",
+      "openChat": "💬 Open Chat",
+      "spamBlockWarning": "This user has messaging restrictions enabled. They may not be able to reply immediately."
+    }
+  },
+  "search": {
+    "menu": {
+      "title": "🔍 Discover People",
+      "hint": "Surf profiles, send likes, and find your match.",
+      "startSurfing": "Surf Profiles ⛵️",
+      "incoming": "💌 View Incoming",
+      "filters": "⚙️ Filters"
+    },
+    "actions": {
+      "like": "❤️ Like",
+      "skip": "⏭️ Skip",
+      "message": "💬 Message",
+      "report": "Report 🚫"
+    },
+    "buttons": {
+      "createProfile": "✨ Create Profile",
+      "browse": "Surf Profiles ⛵️",
+      "resume": "Resume Surfing ",
+      "stop": "Stop Surfing"
+    },
+    "error": {
+      "noProfile": "📝 You need an approved profile to surf.\n\nCreate your profile first!",
+      "notRegistered": "Please use /start to register first."
+    },
+    "noProfiles": {
+      "title": "😔 No more profiles",
+      "hint": "You've seen everyone matching your current filters.\n\nTry adjusting your filters or check back later!",
+      "adjustFilters": "⚙️ Adjust Filters",
+      "viewIncoming": "💌 View Incoming"
+    },
+    "stopped": "Surfing paused. Come back anytime!",
+    "match": {
+      "title": "🎉 It's a Match!",
+      "hint": "You both liked each other! Say hello and start chatting.",
+      "sendMessage": "💬 Send a Message",
+      "continue": "Keep Surfing"
+    },
+    "message": {
+      "prompt": "✍️ Write your message:\n\nThis will be delivered with your profile.",
+      "sent": "💌 Message sent! They'll see it with your profile."
+    },
+    "report": {
+      "sent": "🚩 Report submitted. Thank you for keeping the community safe."
+    },
+    "incoming": {
+      "empty": "💌 No incoming likes yet.\n\nKeep surfing — your next match might be one swipe away!",
+      "done": "✨ You've reviewed all incoming profiles!",
+      "message": "Sent you a message",
+      "liked": "Liked your profile",
+      "back": "← Back"
+    },
+    "notification": {
+      "like": "❤️ Someone liked your profile!",
+      "message": "💬 You received a message!",
+      "match": "🎉 You have a new match!",
+      "viewProfiles": "View Profiles",
+      "viewMatch": "View Match"
+    }
+  },
   "errors": {
     "generic": "⚠️ Something went wrong. Please try again.",
     "invalidCallback": "Invalid action"
