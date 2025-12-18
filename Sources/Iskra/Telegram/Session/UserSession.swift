@@ -70,6 +70,11 @@ struct ProfileDraft: Sendable, Equatable {
 
     /// Telegram file_id of uploaded photo.
     var photoFileId: String?
+    
+    /// Returns true if all required fields are filled.
+    var isComplete: Bool {
+        city != nil && goal != nil && lookingFor != nil && bio != nil && photoFileId != nil
+    }
 }
 
 /// Profile relationship goal.

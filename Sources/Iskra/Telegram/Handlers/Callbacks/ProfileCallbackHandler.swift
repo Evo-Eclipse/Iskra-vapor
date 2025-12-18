@@ -18,6 +18,9 @@ struct ProfileCallbackHandler: CallbackHandler {
             await ProfileFlow.start(query: query, context: context)
         case "submit":
             await ProfileFlow.submitProfile(query: query, context: context)
+        case "back":
+            await MainMenuFlow.show(chatId: query.from.id, context: context)
+            await answerCallback(query: query, context: context)
         default:
             await handleCompoundAction(payload: payload, query: query, context: context)
         }
@@ -74,6 +77,14 @@ struct ProfileCallbackHandler: CallbackHandler {
         default:
             context.logger.warning("Unknown profile action: \(action)")
             await answerWithError(query: query, context: context)
+        }
+    }
+
+    private func answerCallback(query: Components.Schemas.CallbackQuery, context: UpdateContext) async {
+        do {
+            _ = try await context.client.answerCallbackQuery(body: .json(.init(callback_query_id: query.id)))
+        } catch {
+            context.logger.error("Failed to answer callback: \(error)")
         }
     }
 

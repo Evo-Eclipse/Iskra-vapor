@@ -140,7 +140,7 @@ extension ProfileFlow {
             kb.row()
             kb.button(text: "Photo", callbackData: "profile:edit:photo")
             kb.row()
-            kb.button(text: "← Back", callbackData: "profile:edit:back")
+            kb.button(text: L10n["common.back"], callbackData: "profile:edit:back")
             await send(text: L10n.Screen.profileEdit.title, keyboard: kb.buildInline(), chatId: chatId, context: context)
         }
 

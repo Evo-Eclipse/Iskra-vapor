@@ -1,8 +1,14 @@
 /// Handles text messages during conversation flows.
-/// Routes text input based on current session state.
+/// Routes text input based on current session state and reply keyboard buttons.
 struct FlowTextHandler: TextMessageHandler {
     func handle(_ message: Components.Schemas.Message, context: UpdateContext) async {
         guard let user = message.from, let text = message.text else { return }
+        
+        // First check if this is a reply keyboard button press
+        if let button = MainMenuFlow.Button.from(text) {
+            await MainMenuFlow.handleButton(button, chatId: message.chat.id, context: context)
+            return
+        }
 
         switch context.state(for: user.id) {
         // Onboarding
