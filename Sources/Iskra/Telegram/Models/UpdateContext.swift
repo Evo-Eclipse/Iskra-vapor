@@ -20,6 +20,9 @@ struct UpdateContext: Sendable {
 
     /// Shared session storage for state management.
     let sessions: SessionStorage
+
+    /// Admin group chat ID for moderation (optional).
+    let adminChatId: Int64?
 }
 
 // MARK: - Session Convenience Methods
@@ -44,4 +47,26 @@ extension UpdateContext {
     func state(for userId: Int64) -> BotState {
         sessions.state(for: userId)
     }
+}
+
+// MARK: - Repository Access
+
+extension UpdateContext {
+    /// User repository for account operations.
+    var users: UserRepository { UserRepository(database: db) }
+
+    /// Profile repository for showcase operations.
+    var profiles: ProfileRepository { ProfileRepository(database: db) }
+
+    /// Filter repository for search settings.
+    var filters: FilterRepository { FilterRepository(database: db) }
+
+    /// Interaction repository for likes/passes.
+    var interactions: InteractionRepository { InteractionRepository(database: db) }
+
+    /// Match repository for mutual likes.
+    var matches: MatchRepository { MatchRepository(database: db) }
+
+    /// Moderation repository for admin queue.
+    var moderations: ModerationRepository { ModerationRepository(database: db) }
 }

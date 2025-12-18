@@ -33,8 +33,8 @@ final class User: Model, @unchecked Sendable {
 
     // MARK: - Relationships
 
-    @OptionalChild(for: \.$user)
-    var profile: Profile?
+    // Note: Profile uses user_id as its primary key (1-to-1), so no @Child relationship.
+    // Fetch profile via ProfileRepository.find(userId:) instead.
 
     @OptionalChild(for: \.$user)
     var filter: Filter?
@@ -53,7 +53,7 @@ final class User: Model, @unchecked Sendable {
         birthDate: Date,
         gender: Gender,
         status: UserStatus = .active,
-        isMuted: Bool = false,
+        isMuted: Bool = false
     ) {
         self.id = id
         self.telegramId = telegramId

@@ -1,0 +1,159 @@
+{
+  "onboarding": {
+    "welcome": {
+      "title": "✨ Welcome to Iskra!",
+      "body": "Find meaningful connections and spark something special with people near you.\n\nReady to start meeting new people?",
+      "action": "Get Started"
+    },
+    "welcomeBack": {
+      "title": "👋 Welcome back!",
+      "body": "Good to see you again. Use the menu to navigate.",
+      "action": ""
+    },
+    "usernameRequired": {
+      "title": "📛 Username Required",
+      "body": "To use Iskra, you need a Telegram username.\n\nGo to Settings → Edit Profile → Username, then tap /start again.",
+      "action": ""
+    },
+    "birthdate": {
+      "title": "📅 Enter your date of birth",
+      "hint": "Format: DD.MM.YYYY (e.g., 15.03.2000)",
+      "warning": "⚠️ This cannot be changed later.",
+      "errorFormat": "Invalid date format. Please use DD.MM.YYYY",
+      "errorUnderage": "Sorry, Iskra is only available to users 16 and older.\n\nCome back when you turn 16! 🎂"
+    },
+    "gender": {
+      "title": "Select your gender",
+      "hint": "",
+      "warning": "⚠️ This cannot be changed later.",
+      "options": {
+        "male": "Male",
+        "female": "Female"
+      },
+      "action": ""
+    },
+    "complete": {
+      "title": "🎉 Registration Complete!",
+      "body": "Welcome to the bright world of bright people.\n\nNow let's create your profile and start meeting amazing humans.",
+      "action": "Create Profile"
+    },
+    "sessionExpired": {
+      "title": "⏰ Session Expired",
+      "body": "Your session has timed out. Tap /start to begin again.",
+      "action": ""
+    },
+    "learnMore": {
+      "title": "ℹ️ About Iskra",
+      "body": "Iskra is a dating bot that helps you find meaningful connections.\n\n• Create a profile with photos and bio\n• Set your preferences and filters\n• Browse profiles and send likes\n• Match with people who like you back\n• Start conversations securely\n\nYour privacy matters. We never share your data.",
+      "action": "← Back"
+    }
+  },
+  "profile": {
+    "start": {
+      "title": "Let's create your profile.",
+      "body": "",
+      "action": ""
+    },
+    "city": {
+      "title": "📍 First, enter your city:",
+      "hint": "",
+      "warning": "",
+      "confirm": "Selected city: %@\n\n💫 What are you looking for?"
+    },
+    "goal": {
+      "title": "💫 What are you looking for?",
+      "hint": "",
+      "warning": "",
+      "options": {
+        "friendship": "Friendship",
+        "relationship": "Relationship",
+        "both": "Both"
+      },
+      "confirm": "Selected goal: %@\n\n👀 Who would you like to meet?"
+    },
+    "preferences": {
+      "title": "👀 Who would you like to meet?",
+      "hint": "",
+      "warning": "",
+      "options": {
+        "male": "Men",
+        "female": "Women",
+        "any": "Everyone"
+      },
+      "confirm": "Looking for: %@\n\n✍️ Please write a brief description about yourself.\n\nMinimum: 10 characters\nMaximum: 600 characters\n\nTell others what makes you unique!"
+    },
+    "bio": {
+      "title": "✍️ Please write a brief description about yourself.",
+      "hint": "Minimum: 10 characters\nMaximum: 600 characters\n\nTell others what makes you unique!",
+      "warning": "",
+      "errorTooLong": "Description is too long. Please keep it under 600 characters.",
+      "errorTooShort": "Description is too short. Please write at least 10 character."
+    },
+    "photo": {
+      "title": "📸 Great! Now please upload your profile photo.",
+      "hint": "Send a photo that represents you well.",
+      "warning": "",
+      "errorInvalid": "Please send a photo."
+    },
+    "preview": {
+      "title": "Please confirm your profile:",
+      "body": "Is this information correct?",
+      "action": "✨ Confirm"
+    },
+    "submitted": {
+      "title": "Your profile has been submitted for review.",
+      "body": "We'll notify you once it's approved.\nThis usually takes a few hours.\n\nThank you for your patience!",
+      "action": ""
+    },
+    "edit": {
+      "title": "What would you like to change?",
+      "body": "",
+      "action": ""
+    }
+  },
+  "moderation": {
+    "newProfile": "NEW PROFILE FOR REVIEW\n\nUser: @{username}\nCity: {city}\nGoal: {goal}\nLooking for: {pref}\n\nDescription:\n{bio}",
+    "approved": "Your profile is live! 🎉\n\nWelcome to the community. Now go out there and make an impact. ✨",
+    "rejected": "⚠️ We need a quick revision.\n\nThanks for submitting! We found one small issue:\n\nReason: %@\n\nNo worries — just update it and resubmit. You've got this! 🍪",
+    "admin": {
+      "approve": "✅ Approve",
+      "reject": "❌ Reject",
+      "approved": "✅ Profile approved",
+      "rejected": "❌ Profile rejected",
+      "statusApproved": "✅ APPROVED",
+      "statusRejected": "❌ REJECTED: %@",
+      "notFound": "Moderation not found",
+      "userNotFound": "User not found for notification",
+      "editProfile": "✏️ Edit Profile"
+    },
+    "reasons": {
+      "photo": {
+        "button": "📸 Photo content",
+        "text": "Please upload a photo that represents you"
+      },
+      "bio": {
+        "button": "📝 Bio text",
+        "text": "Please write something meaningful about yourself"
+      },
+      "inappropriate": {
+        "button": "🚫 Guidelines",
+        "text": "Please keep content safe and respectful"
+      },
+      "other": {
+        "button": "✏️ Correction",
+        "text": "A small adjustment is needed — contact support for help"
+      }
+    }
+  },
+  "errors": {
+    "generic": "⚠️ Something went wrong. Please try again.",
+    "invalidCallback": "Invalid action"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "back": "← Back",
+    "confirm": "Confirm",
+    "skip": "Skip",
+    "edit": "Edit"
+  }
+}

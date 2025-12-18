@@ -13,6 +13,12 @@ public func configure(_ app: Application) async throws {
     app.storage[TelegramConfigurationKey.self] = telegramConfig
 
     app.logger.info("Starting Telegram bot in \(telegramConfig.mode) mode")
+    
+    if let adminChatId = telegramConfig.adminChatId {
+        app.logger.info("Admin chat ID configured", metadata: ["admin_chat_id": "\(adminChatId)"])
+    } else {
+        app.logger.warning("Admin chat ID not configured - moderation features will be unavailable")
+    }
 
     // Build shared services
     let router = buildUpdateRouter()
@@ -36,6 +42,9 @@ public func configure(_ app: Application) async throws {
         }
     }
 
+    // Load localization
+    L10n.load()
+
     // Register routes
     try routes(app)
 }
@@ -46,10 +55,17 @@ public func configure(_ app: Application) async throws {
 /// This router is shared between webhook and polling modes.
 private func buildUpdateRouter() -> UpdateRouter {
     UpdateRouterBuilder()
+        // Commands
         .onCommand("start", handler: StartCommandHandler())
         .onCommand("help", handler: HelpCommandHandler())
+        // Callbacks
+        .onCallback(prefix: "onboarding", handler: OnboardingCallbackHandler())
+        .onCallback(prefix: "profile", handler: ProfileCallbackHandler())
         .onCallback(prefix: "action", handler: ActionCallbackHandler())
-        .onText(EchoTextHandler())
+        .onCallback(prefix: "mod", handler: ModerationCallbackHandler())
+        // Messages
+        .onText(FlowTextHandler())
+        .onPhoto(FlowPhotoHandler())
         .onSticker(EchoStickerHandler())
         .build()
 }
@@ -71,7 +87,8 @@ private func configureWebhook(
         router: router,
         client: client,
         db: app.db,
-        sessions: sessions
+        sessions: sessions,
+        adminChatId: config.adminChatId
     )
     try app.register(collection: webhookController)
 

@@ -22,6 +22,7 @@ struct TelegramConfigurationTests {
         // Arrange & Act
         let sut = TelegramConfiguration(
             botToken: "test_token",
+            adminChatId: -123456789,
             mode: .polling,
             webhookSecretToken: "secret123",
             webhookURL: "https://example.com/webhook/telegram",
